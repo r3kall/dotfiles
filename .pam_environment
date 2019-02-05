@@ -1,0 +1,7 @@
+#█▓▒░ XDG Base Directory
+XDG_CONFIG_HOME     DEFAULT=@{HOME}/.config
+XDG_CACHE_HOME      DEFAULT=@{HOME}/.cache
+XDG_DATA_HOME       DEFAULT=@{HOME}/.local/share
+
+#█▓▒░ zsh env
+ZDOTDIR             DEFAULT=@{HOME}/.zsh
