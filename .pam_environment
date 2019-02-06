@@ -1,7 +1,26 @@
-#█▓▒░ XDG Base Directory
+# ███████      ██     ████     ████
+# ░██░░░░██    ████   ░██░██   ██░██
+# ░██   ░██   ██░░██  ░██░░██ ██ ░██
+# ░███████   ██  ░░██ ░██ ░░███  ░██
+# ░██░░░░   ██████████░██  ░░█   ░██
+# ░██      ░██░░░░░░██░██   ░    ░██
+# ░██      ░██     ░██░██        ░██
+# ░░       ░░      ░░ ░░         ░░ 
+#
+# █▓▒░ http://linux-pam.org/Linux-PAM-html/sag-pam_env.html
+
+
+# █▓▒░ Core
+PAGER               DEFAULT=less
+EDITOR              DEFAULT=nano
+MANPAGER            DEFAULT=less
+
+
+# █▓▒░ XDG Base Directory
 XDG_CONFIG_HOME     DEFAULT=@{HOME}/.config
 XDG_CACHE_HOME      DEFAULT=@{HOME}/.cache
 XDG_DATA_HOME       DEFAULT=@{HOME}/.local/share
 
-#█▓▒░ zsh env
+
+# █▓▒░ zsh env
 ZDOTDIR             DEFAULT=@{HOME}/.zsh
