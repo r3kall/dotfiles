@@ -1,0 +1,11 @@
+# youtube-dl config
+# https://github.com/rg3/youtube-dl/blob/master/README.md#options
+
+# Continue on download errors (skip unavailable videos in a playlist).
+--ignore-errors
+
+# Disable filesystem caching.
+--no-cache-dir
+
+# Do not copy the mtime.
+--no-mtime
