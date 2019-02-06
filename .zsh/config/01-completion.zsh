@@ -9,7 +9,7 @@ zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS} # Match dircolors 
 zstyle ':completion:*' rehash true # When new programs is installed, auto update without reloading.
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
-setopt COMPLETE_ALIASES # Prevent aliases from being substituted before completion is attempted.
+# setopt COMPLETE_ALIASES # I HATE THIS OPTION, IT SHOULD BE BANNED!!
 setopt COMPLETE_IN_WORD # Attempt to start completion from both ends of a word.
 setopt GLOB_COMPLETE # Don't insert anything resulting from a glob pattern, show completion menu.
 setopt NO_LIST_BEEP # Don't beep on an ambiguous completion.
