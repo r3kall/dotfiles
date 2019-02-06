@@ -1,0 +1,25 @@
+#█▓▒░ aliases
+
+## Core
+alias ls="ls -AFN --group-directories-first --color=auto"
+alias ll="ls -Alh --color=auto"
+alias up="cd ../"
+alias mkdir="mkdir -p"
+alias grep="grep -i --color=auto"
+alias rm="rm -rf"
+alias cp="cp -r"
+
+
+## youtube-dl
+
+# download video or video playlist(prefer mp4 format)
+alias ytv="youtube-dl --external-downloader aria2c \
+                      --external-downloader-args '-c -j 4 -s 4 -x 4 -k 4M' \
+                      --yes-playlist \
+                      -f 'best[ext=mp4]/best' \
+                      -o '%(title)s.%(ext)s'"
+
+# download audio or audio playlist (m4a or mp3)
+alias yta="youtube-dl --yes-playlist \
+                      -x -f 'bestaudio[ext=m4a]/bestaudio[ext=mp3]' \
+                      -o '%(title)s.%(ext)s'"
