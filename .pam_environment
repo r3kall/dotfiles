@@ -24,3 +24,11 @@ XDG_DATA_HOME       DEFAULT=@{HOME}/.local/share
 
 # █▓▒░ zsh env
 ZDOTDIR             DEFAULT=@{HOME}/.zsh
+
+
+# █▓▒░ dev
+IDEA_PROPERTIES     DEFAULT=${XDG_CONFIG_HOME}/idea/config/idea.properties
+IDEA_VM_OPTIONS     DEFAULT=${XDG_CONFIG_HOME}/idea/config/idea64.vmoptions
+
+PYCHARM_PROPERTIES  DEFAULT=${XDG_CONFIG_HOME}/pycharm/config/idea.properties
+PYCHARM_VM_OPTIONS  DEFAULT=${XDG_CONFIG_HOME}/pycharm/config/pycharm64.vmoptions
