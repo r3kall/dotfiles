@@ -25,6 +25,9 @@ PROMPT_STYLE="classic"
 setopt PROMPT_SUBST
 autoload -Uz colors && colors
 
+autoload -Uz promptinit
+promptinit
+
 #█▓▒░ colors for permissions
 if [[ "$EUID" -ne "0" ]]
 then  # if user is not root
