@@ -1,86 +1,93 @@
-! █▓▒░ Xresources
+!------------------
+!------------------
+!  Xresources
+!------------------
+!------------------
 
 
-! █▓▒░ URXVT settings
+!------------------
+!  URxvt Settings
+!
+!  https://linux.die.net/man/1/urxvt
+!------------------
 
-! █▓▒░ interface
-URxvt*depth:                32
-URxvt*loginShell:           true
-URxvt*scrollBar:            false
-URxvt*transparent:          false
-URxvt*internalBorder:       0
-URxvt*borderColor:          #3B4252
-URxvt*borderLess:           false
-URxvt*scrollWithBuffer:     true
-URxvt*scrollTtyOutput:      false
-URxvt*scrollTtyKeypress:    true
-URxvt*skipScroll:           true
-URxvt*fading:               30
+URxvt*geometry:         92x24
+URxvt*fading:           10
+URxvt*urgentOnBell:     true
+URxvt*scrollBar:        false
+URxvt*saveLines:        2048
+URxvt*borderLess:       false
+URxvt*cursorBlink:      true
+URxvt*transparent:      false
 
-! █▓▒░ fonts
-URxvt.font: xft:hack:size=16:antialias=true
-!URxvt*letterSpace: -1
-!URxvt*lineSpace: -1
+URxvt.iso14755:         false
+URxvt.iso14755_52:      false
 
-! █▓▒░ extensions
-URxvt.perl-ext-common: default,resize-font
 
-! █▓▒░ misc
-URxvt.iso14755: false
-URxvt.iso14755_52: false
+!--Extensions
+URxvt.perl-ext-common: default,resize-font,clipboard,url-select
 
-! █▓▒░ Xft settings
-Xft.dpi: 96
+! https://wiki.archlinux.org/index.php/Rxvt-unicode#Yankable_URLs_(no_mouse)
+URxvt.keysym.M-u: perl:url-select:select_next
+URxvt.url-select.launcher: /usr/bin/xdg-open
+URxvt.url-select.underline: true
+URxvt.url-select.button: 1
+
+! https://wiki.archlinux.org/index.php/Rxvt-unicode#Cut_and_paste
+URxvt.clipboard.autocopy: true
+URxvt.keysym.M-c: perl:clipboard:copy
+URxvt.keysym.M-v: perl:clipboard:paste
+
+!--Font Setting
+URxvt*font: xft:Iosevka:size=16:style=Regular:antialias=true:hinting=full
+URxvt*boldFont: xft:Iosevka:size=16:style=Bold:antialias=true:hinting=full
+URxvt*italicFont: xft:Iosevka:size=16:style=Italic:antialias=true:hinting=full
+URxvt*boldItalicFont: xft:Iosevka:size=16:style=Bold Italic:antialias=true:hinting=full
+
+!--Xft Settings
+Xft.dpi: 90
 Xft.autohint: 0
-Xft.lcdfilter: lcddefault
-Xft.hintstyle: hintslight
 Xft.hinting: 1
 Xft.antialias: 1
-Xft.rgba: rgb
+Xft.lcdfilter: lcddefault
+Xft.hintstyle: hintfull
 
 
-!   ██████  ██████  ██   ██ ██████  █████   █████  ██████  █████  ██████
-!  ██░░░░  ██░░░░██░██  ░██░░██░░████░░░██ ██░░░██░░██░░████░░░██░░██░░██
-! ░░█████ ░██   ░██░██  ░██ ░██ ░░░██  ░░ ░███████ ░██ ░░░███████ ░██ ░░
-!  ░░░░░██░██   ░██░██  ░██ ░██   ░██   ██░██░░░░  ░██   ░██░░░░  ░██   
-!  ██████ ░░██████ ░░██████░███   ░░█████ ░░██████░███   ░░██████░███   
-! ░░░░░░   ░░░░░░   ░░░░░░ ░░░     ░░░░░   ░░░░░░ ░░░     ░░░░░░ ░░░   
-!  r  e  a  d     c  o  d  e     l  i  k  e     a     w  i  z  a  r  d 
-!
-! sourcerer by xero harrison (https://xero.nu)
-!  ├─ based on sorcerer by Jeet Sukumaran (http://jeetworks.org)
-!  └─ based on mustang by Henrique C. Alves (hcarvalhoalves@gmail.com)
+!--Colorscheme
 
-! █▓▒░ scorcerer colors
-*.foreground:   #c2c2b0
-*.background:   #222222
-*.cursorColor:  #ffaef7
+! special
+*.foreground: #93a1a1
+*.background: #141c21
+*.cursorColor: #ff75ff
+
 ! black
-*.color0:       #222222
-*.color8:       #272822
+*.color0: #263640
+*.color8: #4a697d
+
 ! red
-*.color1:       #aa4450
-*.color9:       #ff6a6a
+*.color1: #d12f2c
+*.color9: #fa3935
+
 ! green
-*.color2:       #719611
-*.color10:      #b1d631
+*.color2: #819400
+*.color10: #a4bd00
+
 ! yellow
-!*.color3:      #cc8800
-*.color3:       #ff9800
-*.color11:      #87875f
+*.color3: #b08500
+*.color11: #d9a400
+
 ! blue
-*.color4:       #6688aa
-*.color12:      #90b0d1
+*.color4: #2587cc
+*.color12: #2ca2f5
+
 ! magenta
-*.color5:       #8f6f8f
-*.color13:      #8181a6
+*.color5: #696ebf
+*.color13: #8086e8
+
 ! cyan
-*.color6:       #528b8b
-*.color14:      #87ceeb
+*.color6: #289c93
+*.color14: #33c5ba
+
 ! white
-*.color7:       #d3d3d3
-*.color15:      #c1cdc1
-! others
-URxvt.colorIT:  #719611
-URxvt.colorBD:  #d3d3d3
-URxvt.colorUL:  #528b8b
+*.color7: #bfbaac
+*.color15: #fdf6e3

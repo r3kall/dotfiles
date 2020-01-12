@@ -1,4 +1,4 @@
-source $ZDOTDIR/config/00-logo.zsh
+# source $ZDOTDIR/config/00-logo.zsh
 source $ZDOTDIR/config/01-completion.zsh
 source $ZDOTDIR/config/02-history.zsh
 source $ZDOTDIR/config/03-keybindings.zsh

@@ -29,7 +29,7 @@ autoload -Uz promptinit
 promptinit
 
 #█▓▒░ colors for permissions
-if [[ "$EUID" -ne "0" ]]
+if [[ $EUID -ne 0 ]]
 then  # if user is not root
 	USER_LEVEL="${COLOR_USER}"
 else # root!
@@ -52,11 +52,11 @@ GIT_PROMPT() {
     esac
     return
   fi
-  
+
   ref=$(git name-rev --name-only HEAD | sed 's!remotes/!!;s!undefined!merging!' 2> /dev/null)
   dirty="" && [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]] && dirty=$ICO_DIRTY
   stat=$(git status | sed -n 2p)
-  
+
   case "$stat" in
     *ahead*)
       stat=$ICO_AHEAD
@@ -71,7 +71,7 @@ GIT_PROMPT() {
       stat=""
     ;;
   esac
-  
+
   case "$PROMPT_STYLE" in
     ninja)
       echo "${COLOR_NORMAL}${ref}${dirty}${stat}"
@@ -93,12 +93,12 @@ GIT_PROMPT() {
 case "$PROMPT_STYLE" in
 #█▓▒░ ascii
 ascii)
-PROMPT='%{$bg[cyan]%} %F{black}%~ $(GIT_PROMPT)$reset_color 
+PROMPT='%{$bg[cyan]%} %F{black}%~ $(GIT_PROMPT)$reset_color
 %f'
 ;;
 #█▓▒░ arrows
 arrows)
-PROMPT='%{$bg[cyan]%}%F{black} %~ $(GIT_PROMPT)$reset_color 
+PROMPT='%{$bg[cyan]%}%F{black} %~ $(GIT_PROMPT)$reset_color
 %f'
 ;;
 #█▓▒░ ninja
@@ -107,7 +107,7 @@ PROMPT='%F{white}
         ▟▙  ${USER_LEVEL}%~   %F{white}$(GIT_PROMPT) %F{white}
 ▟▒${USER_LEVEL}░░░░░░░%F{white}▜▙▜████████████████████████████████▛
 ▜▒${USER_LEVEL}░░░░░░░%F{white}▟▛▟▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▛
-        ▜▛  
+        ▜▛
             %f'
 ;;
 #█▓▒░ dual line
