@@ -25,8 +25,6 @@ PROMPT_STYLE="classic"
 setopt PROMPT_SUBST
 autoload -Uz colors && colors
 
-autoload -Uz promptinit
-promptinit
 
 #█▓▒░ colors for permissions
 if [[ $EUID -ne 0 ]]
@@ -93,8 +91,7 @@ GIT_PROMPT() {
 case "$PROMPT_STYLE" in
 #█▓▒░ ascii
 ascii)
-PROMPT='%{$bg[cyan]%} %F{black}%~ $(GIT_PROMPT)$reset_color
-%f'
+PROMPT='%{$bg[cyan]%} %F{black}%~ $(GIT_PROMPT)$reset_color %f'
 ;;
 #█▓▒░ arrows
 arrows)
@@ -110,13 +107,8 @@ PROMPT='%F{white}
         ▜▛
             %f'
 ;;
-#█▓▒░ dual line
-dual)
-PROMPT='${USER_LEVEL}┏[${COLOR_NORMAL}%~${USER_LEVEL}]$(GIT_PROMPT)
-${USER_LEVEL}┗━ ━ %f'
-;;
 #█▓▒░ classic
 *)
-PROMPT='${USER_LEVEL}[${COLOR_NORMAL}%~${USER_LEVEL}]$(GIT_PROMPT)━━ ━ %f'
+PROMPT='${USER_LEVEL}[%F{133}%n ${COLOR_NORMAL}%~${USER_LEVEL}]$(GIT_PROMPT)━━ ━ %f'
 ;;
 esac
