@@ -1,28 +1,12 @@
-#█▓▒░ source the plugin https://github.com/zsh-users/zsh-syntax-highlighting
+# Source the plugin https://github.com/zsh-users/zsh-syntax-highlighting
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-# ZSH_HIGHLIGHT_HIGHLIGHTERS=(main pattern brackets)
 
-#█▓▒░ color overrides
-ZSH_HIGHLIGHT_STYLES[default]='none'
-ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=red'
-ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=yellow'
-ZSH_HIGHLIGHT_STYLES[alias]='fg=blue'
-ZSH_HIGHLIGHT_STYLES[builtin]='fg=blue'
-ZSH_HIGHLIGHT_STYLES[function]='fg=blue'
-ZSH_HIGHLIGHT_STYLES[command]='fg=blue'
-ZSH_HIGHLIGHT_STYLES[precommand]='none'
-ZSH_HIGHLIGHT_STYLES[commandseparator]='none'
-ZSH_HIGHLIGHT_STYLES[hashed-command]='fg=blue'
-ZSH_HIGHLIGHT_STYLES[path]='none'
-ZSH_HIGHLIGHT_STYLES[path_prefix]='none'
-ZSH_HIGHLIGHT_STYLES[path_approx]='fg=yellow'
-ZSH_HIGHLIGHT_STYLES[globbing]='fg=green'
-ZSH_HIGHLIGHT_STYLES[history-expansion]='fg=green'
-ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=magenta'
-ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=red'
-ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='none'
-ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=yellow'
-ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=yellow'
-ZSH_HIGHLIGHT_STYLES[dollar-double-quoted-argument]='fg=cyan'
-ZSH_HIGHLIGHT_STYLES[back-double-quoted-argument]='fg=cyan'
-ZSH_HIGHLIGHT_STYLES[assign]='none'
+# Color man pages
+export LESS_TERMCAP_mb=$'\E[01;32m'
+export LESS_TERMCAP_md=$'\E[01;32m'
+export LESS_TERMCAP_me=$'\E[0m'
+export LESS_TERMCAP_se=$'\E[0m'
+export LESS_TERMCAP_so=$'\E[01;47;34m'
+export LESS_TERMCAP_ue=$'\E[0m'
+export LESS_TERMCAP_us=$'\E[01;36m'
+export LESS=-R

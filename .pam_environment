@@ -11,15 +11,15 @@
 
 
 # █▓▒░ Core
-PAGER               DEFAULT=less
-EDITOR              DEFAULT=nano
-MANPAGER            DEFAULT=less
+PAGER               DEFAULT=bat
+EDITOR              DEFAULT=nvim
+MANPAGER            DEFAULT=bat
 
 
 # █▓▒░ XDG Base Directory
-XDG_CONFIG_HOME     DEFAULT=@{HOME}/.config
-XDG_CACHE_HOME      DEFAULT=@{HOME}/.cache
-XDG_DATA_HOME       DEFAULT=@{HOME}/.local/share
+# XDG_CONFIG_HOME     DEFAULT=@{HOME}/.config
+# XDG_CACHE_HOME      DEFAULT=@{HOME}/.cache
+# XDG_DATA_HOME       DEFAULT=@{HOME}/.local/share
 
 
 # █▓▒░ zsh env
@@ -27,8 +27,8 @@ ZDOTDIR             DEFAULT=@{HOME}/.zsh
 
 
 # █▓▒░ dev
-IDEA_PROPERTIES     DEFAULT=${XDG_CONFIG_HOME}/idea/config/idea.properties
-IDEA_VM_OPTIONS     DEFAULT=${XDG_CONFIG_HOME}/idea/config/idea64.vmoptions
+# IDEA_PROPERTIES     DEFAULT=${XDG_CONFIG_HOME}/idea/config/idea.properties
+# IDEA_VM_OPTIONS     DEFAULT=${XDG_CONFIG_HOME}/idea/config/idea64.vmoptions
 
-PYCHARM_PROPERTIES  DEFAULT=${XDG_CONFIG_HOME}/pycharm/config/idea.properties
-PYCHARM_VM_OPTIONS  DEFAULT=${XDG_CONFIG_HOME}/pycharm/config/pycharm64.vmoptions
+# PYCHARM_PROPERTIES  DEFAULT=${XDG_CONFIG_HOME}/pycharm/config/idea.properties
+# PYCHARM_VM_OPTIONS  DEFAULT=${XDG_CONFIG_HOME}/pycharm/config/pycharm64.vmoptions

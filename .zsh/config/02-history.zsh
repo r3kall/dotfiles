@@ -1,7 +1,7 @@
-#█▓▒░ history
+# History options
 # http://zsh.sourceforge.net/Doc/Release/Options.html#History
 
-HISTFILE="$XDG_DATA_HOME/zsh/zhistory"
+HISTFILE="$ZDOTDIR/zhistory"
 HISTSIZE=4096
 SAVEHIST=4096
 

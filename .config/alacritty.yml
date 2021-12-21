@@ -1,0 +1,40 @@
+# Configuration file for Alacritty, the GPU enhanced terminal emulator.
+
+env:
+  # TERM
+  #
+  # This value is used to set the $TERM environment variable for
+  # each instance of Alacritty. If it is not present, Alacritty will
+  # check the local terminfo database and use 'alacritty' if it is
+  # available, otherwise 'xterm-256color' is used.
+  TERM: xterm-256color
+
+window:
+  # Window padding (changes requires restart)
+  #
+  padding:
+    x: 6
+    y: 6
+
+  # Spread additional padding evenly.
+  dynamic_padding: false
+
+  # Window title
+  title: Alacritty
+
+  # Window class
+  class:
+    # Application instance name
+    instance: Alacritty
+    # General application class
+    general: Alacritty
+
+scrolling:
+  history: 2000
+
+# if true, bold text is drawn using the bright color variants.
+draw_bold_text_with_bright_colors: true
+
+
+
+

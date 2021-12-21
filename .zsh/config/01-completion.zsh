@@ -1,13 +1,25 @@
-#█▓▒░ completion system
+## Completion system
 autoload -U compinit
-compinit -d $XDG_DATA_HOME/zsh/zcompdump
+compinit -d $ZDOTDIR/zcompdump
 
-zstyle ':completion:*' completer _expand _complete _correct _approximate
-zstyle ':completion:*' group-name ''
-zstyle ':completion:*' menu select=2 eval "$(dircolors -b)" # Use completion menu for completion when available.
-zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS} # Match dircolors with completion schema.
-zstyle ':completion:*' rehash true # When new programs is installed, auto update without reloading.
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' completer _complete _match _approximate
+zstyle ':completion:*:match:*' original only
+zstyle ':completion:*:approximate:*' max-errors 1 numeric
+
+# Use completion menu when available.
+zstyle ':completion:*' menu select=2 eval "$(dircolors -b)"
+
+# Match dircolors with completion schema.
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+
+# Auto update when new program is installed.
+zstyle ':completion:*' rehash true
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
+
+## Speed up completions
+zstyle ':completion:*' accept-exact '*(N)'
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path $ZDOTDIR/zcache
 
 # setopt COMPLETE_ALIASES # I HATE THIS OPTION, IT SHOULD BE BANNED!!
 setopt COMPLETE_IN_WORD # Attempt to start completion from both ends of a word.

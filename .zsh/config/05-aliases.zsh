@@ -1,6 +1,8 @@
-#█▓▒░ aliases
+# Aliases
 
 ## Core
+alias vim="nvim"
+alias v="nvim"
 alias ls="ls -AFN --group-directories-first --color=auto"
 alias ll="ls -Alh --color=auto"
 alias up="cd ../"
