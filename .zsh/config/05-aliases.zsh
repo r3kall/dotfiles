@@ -1,6 +1,7 @@
 # Aliases
 
 ## Core
+alias sudo="sudo "
 alias vim="nvim"
 alias v="nvim"
 alias ls="ls -AFN --group-directories-first --color=auto"
