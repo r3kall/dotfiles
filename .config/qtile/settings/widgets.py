@@ -15,14 +15,23 @@ def workspaces():
         separator(),
         widget.GroupBox(
             **base(fg="light"),
+            font="UbuntuMono Nerd Font",
             fontsize=18,
+            margin_y=3,
+            margin_x=0,
+            padding_y=6,
+            padding_x=5,
+            borderwidth=0,
             active=colors["active"],
             inactive=colors["inactive"],
+            highlight_method="block",
+            this_current_screen_border=colors["focus"],
+            other_current_screen_border=colors["dark"],
             rounded=False,
             disable_drag=True,
         ),
         separator(),
-        widget.WindowName(**base(fg="focus"), fontsize=14, padding=5),
+        widget.WindowName(**base(fg="focus"), fontsize=16, padding=5),
         separator(),
     ]
 
@@ -31,12 +40,15 @@ widgets = [
     separator(),
     widget.CurrentLayoutIcon(**base(bg="color2"), scale=0.65),
     widget.CurrentLayout(**base(bg="color2"), padding=5),
-    widget.Clock(**base(bg="color1"), format="%d/%m/%Y - %H:%M"),
+    separator(),
+    widget.Clock(**base(bg="color1"), format="%d/%m/%Y - %H:%M", padding=5),
+    separator(),
     widget.Systray(background=colors["dark"], padding=5),
+    separator(),
 ]
 
 widget_defaults = {
-    "font": "Hurmit Nerd Font Bold",
+    "font": "UbuntuMono Nerd Font",
     "fontsize": 14,
     "padding": 1,
 }

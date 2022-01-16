@@ -46,8 +46,9 @@ def start_once():
 
 @hook.subscribe.client_new
 def dialogs(window):
-    if(window.window.get_wm_type() == 'dialog' or window.window.get_wm_transient_for()):
+    if(window.window.get_wm_transient_for() or window.window.get_wm_type() in floating_types):
         window.floating = True
+floating_types = ["notification", "toolbar", "splash", "dialog"]
 
 dgroups_app_rules = []  # type: List
 follow_mouse_focus = True
