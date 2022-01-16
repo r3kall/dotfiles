@@ -1,0 +1,63 @@
+/**
+ * ROFI Color Theme
+ * NAME: dmenu.rasi
+ * DESCRIPTION: This is a horizontal prompt similar to dmenu.
+ */
+
+* {
+    background-color:           #0f101a;
+    text-color:			#f1ffff;
+    prompt-background:          #66818d;
+    prompt-foreground:          #f1ffff;
+    selected-normal-background: #66818d;
+    selected-normal-foreground: #f1ffff;
+    font:                       "UbuntuMono Nerd Font 14";
+}
+
+window {
+    anchor: north;
+    location: north;
+    width: 60%;
+    children: [ box ];
+}
+
+box {
+    orientation: horizontal;
+    margin: 1 0;
+    children: [ prompt, entry, listview ];
+}
+
+prompt {
+    background-color: @prompt-background;
+    text-color:       @prompt-foreground;
+    padding: 0 5;
+}
+
+listview {
+    layout:  horizontal;
+    lines:   15;
+}
+
+entry {
+    expand: false;
+    width:  10em;
+    margin: 1 5;
+}
+
+element {
+    text-color: #4c566a;
+    padding: 0 8;
+}
+
+element selected {
+    background-color: @selected-normal-background;
+    text-color:       @selected-normal-foreground;
+}
+
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
+element-icon {
+    background-color: inherit;
+}

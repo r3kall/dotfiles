@@ -74,8 +74,20 @@ keys = [
     Key([mod, ctrl], "r", lazy.restart(),      desc="Restart Qtile"),
     
     Key([mod, ctrl], "q", lazy.shutdown(),     desc="Shutdown Qtile"),
-    
-    Key([mod], "r", lazy.spawncmd(),           desc="Spawn a command using a prompt widget"),
+
+    # -------- App Configs --------
+
+    # rofi
+    Key([mod], "r", lazy.spawn("rofi -show run -theme dmenu"), desc="Launch rofi in menu mode."),
+    Key([mod, shift], "r", lazy.spawn("rofi -show drun -theme default"), desc="Launch rofi in navigation mode."),
+
+    # -------- Hardware Configs --------
+
+    # Volume
+    # Provided by 'volumeicon'
+    #Key([], "XF86AudioMute", lazy.spawn("amixer -q set Master toggle")),
+    #Key([], "", lazy.spawn()),
+    #Key([], "", lazy.spawn()),
 ]
 
 # Drag floating layouts.
