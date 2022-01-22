@@ -4,7 +4,8 @@ from libqtile import widget
 
 from settings.theme import colors
 
-def base(fg="text", bg="dark"):
+
+def base(fg="color07", bg="color00"):
     return {"foreground": colors[fg], "background": colors[bg]}
 
 def separator():
@@ -14,43 +15,43 @@ def workspaces():
     return [
         separator(),
         widget.GroupBox(
-            **base(fg="light"),
-            font="UbuntuMono Nerd Font",
-            fontsize=18,
+            **base(),
+            # font="UbuntuMono Nerd Font",
+            # fontsize=24,
             margin_y=3,
             margin_x=0,
             padding_y=6,
             padding_x=5,
             borderwidth=0,
-            active=colors["active"],
-            inactive=colors["inactive"],
+            active=colors["color07"],
+            inactive=colors["color03"],
             highlight_method="block",
-            this_current_screen_border=colors["focus"],
-            other_current_screen_border=colors["dark"],
+            this_current_screen_border=colors["color0B"],
+            other_current_screen_border=colors["color0B"],
             rounded=False,
             disable_drag=True,
         ),
         separator(),
-        widget.WindowName(**base(fg="focus"), fontsize=16, padding=5),
+        widget.WindowName(**base(), padding=5),
         separator(),
     ]
 
 widgets = [
     *workspaces(),
     separator(),
-    widget.CurrentLayoutIcon(**base(bg="color2"), scale=0.65),
-    widget.CurrentLayout(**base(bg="color2"), padding=5),
+    widget.CurrentLayoutIcon(**base(), scale=0.65),
+    widget.CurrentLayout(**base(), padding=5),
     separator(),
-    widget.Clock(**base(bg="color1"), format="%d/%m/%Y - %H:%M", padding=5),
+    widget.Clock(**base(), format="%d/%m/%Y - %H:%M", padding=5),
     separator(),
-    widget.Systray(background=colors["dark"], padding=5),
+    widget.Systray(background=colors["color00"], padding=5),
     separator(),
 ]
 
 widget_defaults = {
     "font": "UbuntuMono Nerd Font",
-    "fontsize": 14,
-    "padding": 1,
+    "fontsize": 18,
+    "padding": 0,
 }
 
 extension_defaults = widget_defaults.copy()

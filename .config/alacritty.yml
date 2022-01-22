@@ -20,7 +20,7 @@ window:
   dynamic_padding: false
 
   # Window title
-  # title: Alacritty
+  title: Alacritty
 
   # Window class
   class:
