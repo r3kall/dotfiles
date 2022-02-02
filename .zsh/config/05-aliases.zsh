@@ -4,17 +4,21 @@
 alias sudo="sudo "
 alias vim="nvim"
 alias v="nvim"
+
 alias ls="ls -AFN --group-directories-first --color=auto"
-alias ll="ls -Alh --color=auto"
-alias up="cd ../"
-alias mkdir="mkdir -p"
-alias grep="grep -i --color=auto"
-alias rm="rm -rf"
-alias cp="cp -r"
+alias ll="ls -Alh --group-directories-first --color=auto"
+alias ..="cd .."
+alias ...="cd ../.."
+
+alias grep="grep --color=auto"
+alias egrep="egrep --color=auto"
+alias fgrep="fgrep --color=auto"
+
 alias aliases="cat $ZDOTDIR/config/05-aliases.zsh"
 
 
 ## pacman
+alias pacfull="sudo reflector -c Italy,Germany -p https -f 15 --save /etc/pacman.d/mirrorlist && sudo pacman -Syyu"
 alias pacup="sudo pacman -Syu"
 alias pacrm="sudo pacman -Rns"
 alias pacin="sudo pacman -S --needed"

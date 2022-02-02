@@ -12,7 +12,7 @@
     prompt-foreground:          #282828;
     selected-normal-background: #d3869b;
     selected-normal-foreground: #282828;
-    font:                       "UbuntuMono Nerd Font 16";
+    font:                       "Hack Nerd Font 13.5";
     padding:			0 3;
     margin:			0;
 }
@@ -21,7 +21,7 @@ window {
     anchor:   north;
     location: north;
     width:    100%;
-    height:   24;
+    height:   22;
     children: [ box ];
 }
 

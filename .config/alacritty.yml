@@ -7,7 +7,8 @@ env:
   # each instance of Alacritty. If it is not present, Alacritty will
   # check the local terminfo database and use 'alacritty' if it is
   # available, otherwise 'xterm-256color' is used.
-  TERM: xterm-256color
+  #TERM: xterm-256color
+  TERM: alacritty
 
 window:
   # Window padding (changes requires restart)
@@ -17,22 +18,44 @@ window:
 
   # Spread additional padding evenly.
   dynamic_padding: false
-  dynamic_title: false
-  decorations: none
 
   opacity: 1.0
   # Window title
-  # title: Alacritty
+  title: alacritty
 
   # Window class
   class:
     # Application instance name
-    instance: Alacritty
+    instance: alacritty
     # General application class
-    general: Alacritty
+    general: alacritty
 
 # if true, bold text is drawn using the bright color variants.
 draw_bold_text_with_bright_colors: true
+
+# Font configuration (changes require restart)
+font:
+  normal:
+    family: Hack Nerd Font
+    style: Regular
+
+  bold:
+    family: Hack Nerd Font
+    style: Bold
+  
+  italic:
+    family: Hack Nerd Font
+    style: Italic
+
+  size: 12.5
+
+  offset:
+    x: 0
+    y: 1
+
+  glyph_offset:
+    x: 0
+    y: 0
 
 scrolling:
   # Maximum number of line in the scrollback buffer.
