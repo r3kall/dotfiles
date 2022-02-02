@@ -17,9 +17,9 @@ then
         print -Pn "\e]0;alacritty %~"
     }
 
-    preexec()
-    {
-        # output current executed command with parameters
-        echo -en "\e]0;$(id --user --name)@${HOST}: ${1}"
-    }
+    #preexec()
+    #{
+    #    # output current executed command with parameters
+    #    echo -en "\e]0;$(id --user --name)@${HOST}"
+    #}
 fi

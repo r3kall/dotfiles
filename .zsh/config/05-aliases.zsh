@@ -19,12 +19,11 @@ alias aliases="cat $ZDOTDIR/config/05-aliases.zsh"
 
 ## pacman
 alias pacfull="sudo reflector -c Italy,Germany -p https -f 15 --save /etc/pacman.d/mirrorlist && sudo pacman -Syyu"
-alias pacup="sudo pacman -Syu"
-alias pacrm="sudo pacman -Rns"
-alias pacin="sudo pacman -S --needed"
+alias pacup="sudo pacman -Syuq"
+alias pacrm="sudo pacman -Rnsq"
+alias pacin="sudo pacman -Sq --needed"
 alias pacorphans="sudo pacman -Rns $(pacman -Qtdq)"
 alias pache="sudo paccache -rvuk0 && sudo paccache -rv"
-function pacwildrm() { sudo pacman -Rns $(pacman -Qsq $1) }  # $1 is a 'regex'
 
 
 ## youtube-dl
