@@ -9,7 +9,7 @@ def base(fg="base07", bg="base00"):
     return {"foreground": colors[fg], "background": colors[bg]}
 
 def separator():
-    return widget.Sep(**base(), linewidth=0, padding=5)
+    return widget.Sep(**base(), linewidth=0)
 
 def workspaces():
     return [
@@ -18,40 +18,40 @@ def workspaces():
             **base(),
             # font="UbuntuMono Nerd Font",
             # fontsize=24,
-            margin_y=3,
-            margin_x=0,
-            padding_y=6,
-            padding_x=5,
+            # margin_y=3,
+            # margin_x=0,
+            # padding_y=6,
+            # padding_x=5,
             borderwidth=0,
             active=colors["base07"],
             inactive=colors["base03"],
-            highlight_method="block",
-            this_current_screen_border=colors["base0B"],
-            other_current_screen_border=colors["base0B"],
+            highlight_method="text",
+            this_current_screen_border=colors["base0E"],
+            other_current_screen_border=colors["base0F"],
             rounded=False,
             disable_drag=True,
         ),
         separator(),
-        widget.WindowName(**base(), padding=5),
+        widget.WindowName(**base()),
         separator(),
     ]
 
 widgets = [
     *workspaces(),
     separator(),
-    widget.CurrentLayoutIcon(**base(), scale=0.65),
-    widget.CurrentLayout(**base(), padding=5),
+    widget.CurrentLayoutIcon(**base(), scale=0.75),
+    widget.CurrentLayout(**base()),
     separator(),
-    widget.Clock(**base(), format="%d/%m/%Y - %H:%M", padding=5),
+    widget.Clock(**base(), format="%d/%m/%Y - %H:%M"),
     separator(),
-    widget.Systray(background=colors["base00"], padding=5),
+    widget.Systray(**base()),
     separator(),
 ]
 
 widget_defaults = {
     "font": "UbuntuMono Nerd Font",
-    "fontsize": 16,
-    "padding": 0,
+    "fontsize": 18,
+    "padding": 5,
 }
 
 extension_defaults = widget_defaults.copy()

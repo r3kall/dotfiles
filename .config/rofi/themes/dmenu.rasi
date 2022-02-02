@@ -5,48 +5,52 @@
  */
 
 * {
-    background-color:           #0f101a;
-    text-color:			#f1ffff;
-    prompt-background:          #66818d;
-    prompt-foreground:          #f1ffff;
-    selected-normal-background: #66818d;
-    selected-normal-foreground: #f1ffff;
-    font:                       "UbuntuMono Nerd Font 14";
+    background-color:           #282828;
+    item-text-color:		#665c54;
+    entry-text-color:		#ebdbb2;
+    prompt-background:          #d3869b;
+    prompt-foreground:          #282828;
+    selected-normal-background: #d3869b;
+    selected-normal-foreground: #282828;
+    font:                       "UbuntuMono Nerd Font 16";
+    padding:			0 3;
+    margin:			0;
 }
 
 window {
-    anchor: north;
+    anchor:   north;
     location: north;
-    width: 60%;
+    width:    100%;
+    height:   24;
     children: [ box ];
 }
 
 box {
     orientation: horizontal;
-    margin: 1 0;
-    children: [ prompt, entry, listview ];
+    margin:      @margin;
+    padding:     @padding;
+    children:    [ prompt, entry, listview ];
 }
 
 prompt {
     background-color: @prompt-background;
     text-color:       @prompt-foreground;
-    padding: 0 5;
 }
 
 listview {
-    layout:  horizontal;
-    lines:   15;
+    layout: horizontal;
+    lines:  15;
 }
 
 entry {
-    expand: false;
-    width:  10em;
-    margin: 1 5;
+    expand:     false;
+    width:      10em;
+    text-color: @entry-text-color;
 }
 
 element {
-    text-color: #4c566a;
-    padding: 0 8;
+    background-colo: @background-color;
+    text-color:      @item-text-color;
 }
 
 element selected {

@@ -11,16 +11,18 @@ env:
 
 window:
   # Window padding (changes requires restart)
-  #
   padding:
-    x: 6
-    y: 6
+    x: 4
+    y: 4
 
   # Spread additional padding evenly.
   dynamic_padding: false
+  dynamic_title: false
+  decorations: none
 
+  opacity: 1.0
   # Window title
-  title: Alacritty
+  # title: Alacritty
 
   # Window class
   class:
@@ -29,12 +31,15 @@ window:
     # General application class
     general: Alacritty
 
-scrolling:
-  history: 2000
-
 # if true, bold text is drawn using the bright color variants.
 draw_bold_text_with_bright_colors: true
 
+scrolling:
+  # Maximum number of line in the scrollback buffer.
+  history: 5000
+
+mouse_bindings:
+  - { mouse: Middle, action: PasteSelection }
 
 
 
