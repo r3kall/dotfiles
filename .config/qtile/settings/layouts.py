@@ -7,8 +7,8 @@ from settings.theme import colors
 layout_conf = {
         "border_width": 1,
         "margin": 8,
-        "border_focus": colors["color05"][0],
-        "border_normal": colors["color02"][0]
+        "border_focus": colors["base05"][0],
+        "border_normal": colors["base02"][0]
     }
 
 layouts = [

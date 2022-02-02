@@ -5,7 +5,7 @@ from libqtile import widget
 from settings.theme import colors
 
 
-def base(fg="color07", bg="color00"):
+def base(fg="base07", bg="base00"):
     return {"foreground": colors[fg], "background": colors[bg]}
 
 def separator():
@@ -23,11 +23,11 @@ def workspaces():
             padding_y=6,
             padding_x=5,
             borderwidth=0,
-            active=colors["color07"],
-            inactive=colors["color03"],
+            active=colors["base07"],
+            inactive=colors["base03"],
             highlight_method="block",
-            this_current_screen_border=colors["color0B"],
-            other_current_screen_border=colors["color0B"],
+            this_current_screen_border=colors["base0B"],
+            other_current_screen_border=colors["base0B"],
             rounded=False,
             disable_drag=True,
         ),
@@ -44,13 +44,13 @@ widgets = [
     separator(),
     widget.Clock(**base(), format="%d/%m/%Y - %H:%M", padding=5),
     separator(),
-    widget.Systray(background=colors["color00"], padding=5),
+    widget.Systray(background=colors["base00"], padding=5),
     separator(),
 ]
 
 widget_defaults = {
     "font": "UbuntuMono Nerd Font",
-    "fontsize": 18,
+    "fontsize": 16,
     "padding": 0,
 }
 
