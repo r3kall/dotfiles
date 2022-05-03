@@ -5,3 +5,5 @@ source $ZDOTDIR/config/03-keybindings.zsh
 source $ZDOTDIR/config/04-prompt.zsh
 source $ZDOTDIR/config/05-aliases.zsh
 source $ZDOTDIR/config/10-syntax.zsh
+
+source /usr/share/nvm/init-nvm.sh
