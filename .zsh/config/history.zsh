@@ -1,4 +1,4 @@
-# History options
+# History
 # http://zsh.sourceforge.net/Doc/Release/Options.html#History
 
 HISTFILE="$ZDOTDIR/zhistory"

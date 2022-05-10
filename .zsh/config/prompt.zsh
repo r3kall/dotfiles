@@ -1,14 +1,13 @@
-## Prompt definition
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+## Prompt
 
 # Allow functions in the prompt
 setopt PROMPT_SUBST
 autoload -Uz colors && colors
 
-## starship prompt
-eval "$(starship init zsh)"
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-## title
+## Alacritty title
 if [[ "${TERM}" != "" && "${TERM}" == "alacritty" ]]
 then
     precmd()
@@ -23,3 +22,6 @@ then
     #    echo -en "\e]0;$(id --user --name)@${HOST}"
     #}
 fi
+
+## starship prompt
+eval "$(starship init zsh)"
