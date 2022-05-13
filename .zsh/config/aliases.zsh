@@ -5,25 +5,16 @@ alias sudo="sudo "
 alias vim="nvim"
 alias v="nvim"
 
-alias ls="ls -AFN --group-directories-first --color=auto"
-alias ll="ls -Alh --group-directories-first --color=auto"
+alias cat="bat --theme OneHalfDark"
+alias ls="exa -Fa --group-directories-first --color=auto"
+alias ll="exa -la --group-directories-first --color=auto"
 alias ..="cd .."
-alias ...="cd ../.."
 
 alias grep="grep --color=auto"
 alias egrep="egrep --color=auto"
 alias fgrep="fgrep --color=auto"
 
-alias aliases="cat $ZDOTDIR/config/05-aliases.zsh"
-
-
-## pacman
-alias pacfull="sudo reflector -c Italy,Germany -p https -f 15 --save /etc/pacman.d/mirrorlist && sudo pacman -Syyu"
-alias pacup="sudo pacman -Syuq"
-alias pacrm="sudo pacman -Rnsq"
-alias pacin="sudo pacman -Sq --needed"
-alias pacorphans="sudo pacman -Rns $(pacman -Qtdq)"
-alias pache="sudo paccache -rvuk0 && sudo paccache -rv"
+alias aliases="bat --theme OneHalfDark $ZDOTDIR/config/aliases.zsh"
 
 
 ## youtube-dl
@@ -41,5 +32,5 @@ alias yta="youtube-dl --yes-playlist \
                       -o '%(title)s.%(ext)s'"
 
                 
-## git
+## Dotfiles
 alias dot="/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME"

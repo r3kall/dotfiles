@@ -52,3 +52,24 @@ zle -N down-line-or-beginning-search
 
 [[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   up-line-or-beginning-search
 [[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" down-line-or-beginning-search
+
+# Shortcut to exit shell on partial command line.
+# https://wiki.archlinux.org/title/zsh#Shortcut_to_exit_shell_on_partial_command_line
+exit_zsh() { exit }
+zle -N exit_zsh
+bindkey '^D' exit_zsh
+
+# Clear the backbuffer using a key binding.
+# https://wiki.archlinux.org/title/zsh#Clear_the_backbuffer_using_a_key_binding
+function clear-screen-and-scrollback() {
+    echoti civis >"$TTY"
+    printf '%b' '\e[H\e[2J' >"$TTY"
+    zle .reset-prompt
+    zle -R
+    printf '%b' '\e[3J' >"$TTY"
+    echoti cnorm >"$TTY"
+}
+
+zle -N clear-screen-and-scrollback
+bindkey '^L' clear-screen-and-scrollback
+
