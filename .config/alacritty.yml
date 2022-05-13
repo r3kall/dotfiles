@@ -7,8 +7,8 @@ env:
   # each instance of Alacritty. If it is not present, Alacritty will
   # check the local terminfo database and use 'alacritty' if it is
   # available, otherwise 'xterm-256color' is used.
-  # TERM: xterm-256color
-  TERM: alacritty
+  TERM: xterm-256color
+  # TERM: alacritty
 
 window:
   # Window padding (changes requires restart)

@@ -11,9 +11,9 @@
 
 
 # █▓▒░ Core
-PAGER               DEFAULT=bat
+PAGER               DEFAULT="bat --theme OneHalfDark"
+MANPAGER            DEFAULT="bat --theme OneHalfDark"
 EDITOR              DEFAULT=nvim
-MANPAGER            DEFAULT=bat
 
 
 # █▓▒░ XDG Base Directory
