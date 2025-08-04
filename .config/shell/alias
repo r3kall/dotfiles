@@ -1,0 +1,44 @@
+## CORE ##
+alias \
+\
+c="clear" \
+vim="nvim" \
+v="nvim" \
+cat="bat" \
+ls="eza -Fa --group-directories-first --color automatic" \
+ll="eza -la --group-directories-first --color automatic" \
+..="cd .." \
+grep="grep --color=auto" \
+egrep="egrep --color=auto" \
+fgrep="fgrep --color=auto" \
+k="killall" \
+p="ps aux | grep $1"
+
+## GIT ##
+alias \
+\
+g="git" \
+gst="git status" \
+gcm="git commit" \
+gp="git push"
+
+## YOUTUBE-DL ##
+
+# download video or video playlist(prefer mp4 format)
+alias ytv="youtube-dl --external-downloader aria2c \
+                      --external-downloader-args '-c -j 4 -s 4 -x 4 -k 4M' \
+                      --yes-playlist \
+                      -f 'best[ext=mp4]/best' \
+                      -o '%(title)s.%(ext)s'"
+
+# download audio or audio playlist (m4a or mp3)
+alias yta="youtube-dl --yes-playlist \
+                      -x -f 'bestaudio[ext=m4a]/bestaudio[ext=mp3]' \
+                      -o '%(title)s.%(ext)s'"
+
+                
+## UTILS ##
+alias calias="bat $XDG_CONFIG_HOME/shell/alias"
+
+## DOTFILES ##
+alias dot="/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
