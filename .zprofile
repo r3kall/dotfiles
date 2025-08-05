@@ -57,6 +57,7 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 # Tools
 export KUBECONFIG="$XDG_CONFIG_HOME/kube"
 export KUBECACHEDIR="$XDG_CACHE_HOME/kube"
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"  # ssh-agent systemd service
 
 # Cloud Providers
 export AWS_SHARED_CREDENTIALS_FILE="$XDG_CONFIG_HOME/aws/credentials"
