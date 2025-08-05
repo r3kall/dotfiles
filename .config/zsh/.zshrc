@@ -60,7 +60,7 @@ setopt LIST_PACKED # Try to make the completion list smaller by drawing smaller 
 _zpcompinit_custom() {
   setopt extendedglob local_options
   autoload -Uz compinit
-  local zcd=${"$XDG_CACHE_HOME/zsh":-$HOME}/.zcompdump
+  local zcd="$XDG_CACHE_HOME/zsh/.zcompdump"
   local zcdc="$zcd.zwc"
   # Compile the completion dump to increase startup speed, if dump is newer or doesn't exist,
   # in the background as this is doesn't affect the current session.

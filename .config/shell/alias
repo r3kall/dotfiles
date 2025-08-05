@@ -5,8 +5,8 @@ c="clear" \
 vim="nvim" \
 v="nvim" \
 cat="bat" \
-ls="eza -Fa --group-directories-first --color automatic" \
-ll="eza -la --group-directories-first --color automatic" \
+ls="eza -Fa --group-directories-first --color=auto" \
+ll="eza -la --group-directories-first --color=auto" \
 ..="cd .." \
 grep="grep --color=auto" \
 egrep="egrep --color=auto" \
