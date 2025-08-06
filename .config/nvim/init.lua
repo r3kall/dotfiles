@@ -40,13 +40,14 @@ Plug('nvim-treesitter/nvim-treesitter') --improved syntax
 Plug('HiPhish/rainbow-delimiters.nvim') --rainbow delimiters
 Plug('windwp/nvim-autopairs') --autopairs
 
--- TODO: native lsp, treesitter, git, others
+-- TODO: native lsp, git, review keymappings
 
 vim.call('plug#end')
 
 -- move config and plugin config to alternate files
 require("theme")
 require("options")
+require("lsp")
 require("mappings")
 
 
