@@ -33,6 +33,12 @@ Plug 'romgrk/barbar.nvim'
 
 -- file explorer
 Plug('ibhagwan/fzf-lua') --fuzzy finder and grep
+Plug('stevearc/oil.nvim') --file explorer
+
+-- syntax tools
+Plug('nvim-treesitter/nvim-treesitter') --improved syntax
+Plug('HiPhish/rainbow-delimiters.nvim') --rainbow delimiters
+Plug('windwp/nvim-autopairs') --autopairs
 
 -- TODO: native lsp, treesitter, git, others
 
