@@ -20,7 +20,7 @@ local options = {
 	numberwidth = 4,
 
 	smarttab = true, --indentation stuff
-	--shiftwidth=4,
+	shiftwidth=4,
 	softtabstop = 4,
 	autoindent = false,
 	tabstop = 4, --visual width of tab
