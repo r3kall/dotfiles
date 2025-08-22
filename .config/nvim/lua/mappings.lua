@@ -51,3 +51,6 @@ map("n", "<leader>Ff", ":lua require('fzf-lua').files({ cwd = '..' })<CR>") --se
 map("n", "<leader>Fr", ":lua require('fzf-lua').resume()<CR>") --last search
 map("n", "<leader>g", ":lua require('fzf-lua').grep()<CR>") --grep
 map("n", "<leader>G", ":lua require('fzf-lua').grep_cword()<CR>") --grep word under cursor
+
+-- markdown
+map("n", "<leader>M", ":lua require('render-markdown').toggle()<CR>") --toggle-markdown-preview

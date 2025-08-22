@@ -5,14 +5,13 @@ c="clear" \
 vim="nvim" \
 v="nvim" \
 cat="bat" \
-ls="eza -Fa --group-directories-first --color=auto" \
+ls="eza" \
 ll="eza -la --group-directories-first --color=auto" \
 ..="cd .." \
 grep="grep --color=auto" \
-egrep="egrep --color=auto" \
-fgrep="fgrep --color=auto" \
+egrep="grep -E --color=auto" \
+fgrep="grep -F --color=auto" \
 k="killall" \
-p="ps aux | grep $1"
 
 ## GIT ##
 alias \
@@ -23,22 +22,12 @@ gcm="git commit" \
 gp="git push"
 
 ## YOUTUBE-DL ##
-
-# download video or video playlist(prefer mp4 format)
-alias ytv="youtube-dl --external-downloader aria2c \
-                      --external-downloader-args '-c -j 4 -s 4 -x 4 -k 4M' \
-                      --yes-playlist \
-                      -f 'best[ext=mp4]/best' \
-                      -o '%(title)s.%(ext)s'"
-
-# download audio or audio playlist (m4a or mp3)
-alias yta="youtube-dl --yes-playlist \
-                      -x -f 'bestaudio[ext=m4a]/bestaudio[ext=mp3]' \
-                      -o '%(title)s.%(ext)s'"
-
+p() { ps aux | grep -E -- "${*:-.}"; }
+yt() { yt-dlp --yes-playlist -f 'best[ext=mp4]/best' -o '%(title)s.%(ext)s' -- "$@"; }
+yta() { yt-dlp --yes-playlist -x -f 'bestaudio[ext=m4a]/bestaudio[ext=mp3]' -o '%(title)s.%(ext)s' -- "$@"; }
                 
 ## UTILS ##
-alias calias="bat $XDG_CONFIG_HOME/shell/alias"
+alias calias='bat "$XDG_CONFIG_HOME/shell/alias"'
 
 ## DOTFILES ##
-alias dot="/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
+alias dot='/usr/bin/git --git-dir="$HOME/.dotfiles" --work-tree="$HOME"'

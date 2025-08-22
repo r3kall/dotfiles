@@ -28,8 +28,8 @@ Plug('nvim-tree/nvim-web-devicons') --Optional: statusline pretty icons
 Plug('nvim-lualine/lualine.nvim') --statusline
 
 -- tab bar
-Plug 'lewis6991/gitsigns.nvim' --Optional: git status
-Plug 'romgrk/barbar.nvim'
+Plug('lewis6991/gitsigns.nvim') --Optional: git status
+Plug('romgrk/barbar.nvim')
 
 -- file explorer
 Plug('ibhagwan/fzf-lua') --fuzzy finder and grep
@@ -39,6 +39,7 @@ Plug('stevearc/oil.nvim') --file explorer
 Plug('nvim-treesitter/nvim-treesitter') --improved syntax
 Plug('HiPhish/rainbow-delimiters.nvim') --rainbow delimiters
 Plug('windwp/nvim-autopairs') --autopairs
+Plug('MeanderingProgrammer/render-markdown.nvim') --render md inline
 
 -- TODO: native lsp, git, review keymappings
 
