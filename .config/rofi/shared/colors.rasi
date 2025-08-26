@@ -1,0 +1,17 @@
+@import 'matugen-colors.rasi'
+
+
+/*--------Color definitions------------*/
+
+* {
+       background:       @surface;
+       background-alt:   @surface-container-highest;
+       background-alpha: @surface-alpha;
+       foreground:       @on-surface;
+       border-color:     @tertiary;
+       selected:         @primary-fixed;
+       selected-alpha:   @primary-fixed-alpha;
+       selected-text:    @surface;
+       active:           @tertiary;
+       urgent:           @error;
+}
