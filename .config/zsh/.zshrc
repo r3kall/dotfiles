@@ -1,15 +1,35 @@
-#### Prompt ####
+# 0. PROFILING (OPTIONAL: check at the end of file)
+# zmodload zsh/zprof
 
+# 1. COMPINIT
+# https://gist.github.com/ctechols/ca1035271ad134841284?permalink_comment_id=2894219#gistcomment-2894219
+_zpcompinit_custom() {
+  setopt extendedglob local_options
+  autoload -Uz compinit
+  local zcd="$XDG_CACHE_HOME/zsh/.zcompdump"
+  local zcda="$zcd.augur"
+  local zcdc="$zcd.zwc"
+  local zcd_ttl=12 # hours
+  # Compile the completion dump to increase startup speed, if dump is newer or doesn't exist,
+  # in the background as this is doesn't affect the current session.
+  if [[ (! -e "$zcda") || -f "$zcda"(#qN.mh+${zcd_ttl}) ]]; then
+    compinit -i -d "$zcd"
+	touch "$zcda"
+  else
+    compinit -C -d "$zcd"
+  fi
+
+  if [[ -s "$zcd" && (! -s "$zcdc" || "$zcd" -nt "$zcdc") ]]; then
+	[[ -e "$zcdc" ]] && mv -f "$zcdc" "$zcdc.old"
+	zcompile -M "$zcd" &!
+  fi
+}
+_zpcompinit_custom
+
+# 2. PROMPT
 # Allow functions in the prompt.
 setopt PROMPT_SUBST
-autoload -Uz colors && colors
-
-# Source zsh plugins.
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# Set terminal title.
-autoload -Uz add-zsh-hook
+autoload -Uz colors add-zsh-hook && colors
 
 function xterm_title_precmd () {
 	print -Pn -- '\e]2;%n@%m %~\a'
@@ -29,14 +49,41 @@ fi
 # Starship prompt.
 eval "$(starship init zsh)"
 
-#### Completion System ####
+# 3. PLUGINS
+_defer_load() {
+  # Plugins
+  source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+  ZSH_AUTOSUGGEST_STRATEGY=(history)
+  ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=32
+  source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  
+  autoload -Uz bracketed-paste-magic url-quote-magic
+  zle -N bracketed-paste bracketed-paste-magic
+  zle -N self-insert url-quote-magic
+
+  # Lazy-load
+  # NOTE: possible add of yarn or others
+  if [ -r /usr/share/nvm/init-nvm.sh ]; then
+    load_nvm() { source /usr/share/nvm/init-nvm.sh; }
+    node() { load_nvm; unfunction node; command node "$@"; }
+    npm()  { load_nvm; unfunction npm;  command npm  "$@"; }
+    npx()  { load_nvm; unfunction npx;  command npx  "$@"; }
+  fi
+
+  add-zsh-hook -d precmd _defer_load
+}
+add-zsh-hook -Uz precmd _defer_load
+
+# 4. COMPLETION
+#   # ls_colors
+eval "$(dircolors -b 2>/dev/null || true)"
 
 zstyle ':completion:*' completer _complete _match _approximate
 zstyle ':completion:*:match:*' original only
 zstyle ':completion:*:approximate:*' max-errors 1 numeric
 
 # Use completion menu when available.
-zstyle ':completion:*' menu select=2 eval "$(dircolors -b)"
+zstyle ':completion:*' menu select=2
 
 # Match dircolors with completion schema.
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
@@ -46,7 +93,8 @@ zstyle ':completion:*' rehash true
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
 
 # Speed up completions.
-zstyle ':completion:*' accept-exact '*(N)'
+zstyle ':completion:*' accept-exact true
+zstyle ':completion:*' accept-exact-dirs true
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path $XDG_CACHE_HOME/zsh/.zcache
 
@@ -55,32 +103,11 @@ setopt GLOB_COMPLETE # Don't insert anything resulting from a glob pattern, show
 setopt NO_LIST_BEEP # Don't beep on an ambiguous completion.
 setopt LIST_PACKED # Try to make the completion list smaller by drawing smaller columns.
 
-# Speed up completion system loading.
-# https://gist.github.com/ctechols/ca1035271ad134841284?permalink_comment_id=2894219#gistcomment-2894219
-_zpcompinit_custom() {
-  setopt extendedglob local_options
-  autoload -Uz compinit
-  local zcd="$XDG_CACHE_HOME/zsh/.zcompdump"
-  local zcdc="$zcd.zwc"
-  # Compile the completion dump to increase startup speed, if dump is newer or doesn't exist,
-  # in the background as this is doesn't affect the current session.
-  if [[ -f "$zcd"(#qN.m+1) ]]; then
-        compinit -i -d "$zcd"
-        { rm -f "$zcdc" && zcompile "$zcd" } &!
-  else
-        compinit -C -d "$zcd"
-        { [[ ! -f "$zcdc" || "$zcd" -nt "$zcdc" ]] && rm -f "$zcdc" && zcompile "$zcd" } &!
-  fi
-}
-
-_zpcompinit_custom
-
-# History
+# 5. HISTORY
 # http://zsh.sourceforge.net/Doc/Release/Options.html#History
-
 HISTFILE="$XDG_CACHE_HOME/zsh/.zhistory"
-HISTSIZE=4096
-SAVEHIST=4096
+HISTSIZE=8192
+SAVEHIST=8192
 
 setopt BANG_HIST               # Treat the '!' character specially during expansion.
 setopt EXTENDED_HISTORY        # Save each command's epoch timestamps and the duration in seconds.
@@ -93,10 +120,10 @@ setopt HIST_FCNTL_LOCK         # Locking is done by means of the system’s fcnt
 setopt APPEND_HISTORY          # Append to the history file when the shell exits.
 setopt SHARE_HISTORY           # Share history between all sessions.
 
-# Keybindings
-
+# 6. KEYBINDINGS
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
+zmodload zsh/terminfo 2>/dev/null || true
 typeset -g -A key
 
 key[Home]="${terminfo[khome]}"
@@ -144,32 +171,11 @@ fi
 autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
-
 [[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   up-line-or-beginning-search
 [[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" down-line-or-beginning-search
 
-# Shortcut to exit shell on partial command line.
-# https://wiki.archlinux.org/title/zsh#Shortcut_to_exit_shell_on_partial_command_line
-exit_zsh() { exit }
-zle -N exit_zsh
-bindkey '^D' exit_zsh
-
-# Clear the backbuffer using a key binding.
-# https://wiki.archlinux.org/title/zsh#Clear_the_backbuffer_using_a_key_binding
-function clear-screen-and-scrollback() {
-    echoti civis >"$TTY"
-    printf '%b' '\e[H\e[2J' >"$TTY"
-    zle .reset-prompt
-    zle -R
-    printf '%b' '\e[3J' >"$TTY"
-    echoti cnorm >"$TTY"
-}
-
-zle -N clear-screen-and-scrollback
-bindkey '^L' clear-screen-and-scrollback
-
-## Alias
+# 7. MISC
 [ -f "$XDG_CONFIG_HOME/shell/alias" ] && source "$XDG_CONFIG_HOME/shell/alias"
 
-# Additional sources
-source /usr/share/nvm/init-nvm.sh
+# 0. PROFILING (OPTIONAL: check at start of file)
+# zprof

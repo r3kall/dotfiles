@@ -1,14 +1,12 @@
-#!/bin/sh
 # env vars to set on login, zsh settings in ~/config/zsh/.zshrc
-# read first
 
 # default programs
 export EDITOR="nvim"
 export TERM="kitty"
 export TERMINAL="kitty"
 # export MUSPLAYER="termusic"
-export BROWSER="thorium"
-export BROWSER2="librewolf"
+export BROWSER="firefox"
+export BROWSER2="google-chrome"
 # export DISPLAY=:0 # useful for some scripts
 
 # follow XDG base dir specification
@@ -19,6 +17,8 @@ export XDG_STATE_HOME="$HOME/.local/state"
 
 # bootstrap .zshrc to ~/.config/zsh/.zshrc, any other zsh config files can also reside here
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
+export STARSHIP_CACHE="$XDG_CACHE_HOME/starship.cache"
+export STARSHIP_LOG="$XDG_CACHE_HOME/starship.log"
 
 # history files
 export PYTHON_HISTORY="$XDG_DATA_HOME/python/history"

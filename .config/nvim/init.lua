@@ -40,6 +40,7 @@ Plug('nvim-treesitter/nvim-treesitter') --improved syntax
 Plug('HiPhish/rainbow-delimiters.nvim') --rainbow delimiters
 Plug('windwp/nvim-autopairs') --autopairs
 Plug('MeanderingProgrammer/render-markdown.nvim') --render md inline
+Plug('norcalli/nvim-colorizer.lua') --colorizer
 
 -- TODO: native lsp, git, review keymappings
 

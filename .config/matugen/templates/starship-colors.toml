@@ -1,25 +1,24 @@
 format = '''$directory$git_branch$git_status$kubernetes$terraform$go$rust$python$character'''
 
 add_newline = false
-scan_timeout = 10
-command_timeout = 100
+
 palette = 'colors'
 
 [palettes.colors]
-color1 = '#b3c5ff'
-color2 = '#1a2e60'
-color3 = '#c5c6d0'
-color4 = '#1e1f25'
-color5 = '#1a2e60'
-color6 = '#121318'
-color7 = '#121318'
-color8 = '#b3c5ff'
-color9 = '#e2bbdc'
+color1 = '{{colors.primary_fixed_dim.default.hex}}'
+color2 = '{{colors.on_primary.default.hex}}'
+color3 = '{{colors.on_surface_variant.default.hex}}'
+color4 = '{{colors.surface_container.default.hex}}'
+color5 = '{{colors.on_primary.default.hex}}'
+color6 = '{{colors.surface_dim.default.hex}}'
+color7 = '{{colors.surface.default.hex}}'
+color8 = '{{colors.primary.default.hex}}'
+color9 = '{{colors.tertiary.default.hex}}'
 
 # Prompt symbols 
 [character]
 success_symbol = "[❯](color9 bold)"
-error_symbol = "[x](#ffb4ab bold)"
+error_symbol = "[x]({{colors.error.default.hex}} bold)"
 vicmd_symbol = "[❮](color9 bold)"
 
 [directory]
@@ -43,6 +42,4 @@ style = "color3 dimmed"
 stashed = "≡"
 
 [package]
-disabled = true
-[battery]
 disabled = true
