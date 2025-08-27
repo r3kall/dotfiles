@@ -38,7 +38,7 @@ format = '[$branch(:$remote_branch)]($style) '
 style = 'color9 bold'
 
 [git_status]
-format = '([$all_status$ahead_behind]($style)) ' 
+format = '([$all_status$ahead_behind]($style))' 
 style = "color3 dimmed"
 stashed = "≡"
 
