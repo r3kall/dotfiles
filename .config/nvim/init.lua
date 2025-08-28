@@ -42,15 +42,18 @@ Plug('windwp/nvim-autopairs') --autopairs
 Plug('MeanderingProgrammer/render-markdown.nvim') --render md inline
 Plug('norcalli/nvim-colorizer.lua') --colorizer
 
--- TODO: native lsp, git, review keymappings
-
 vim.call('plug#end')
 
--- move config and plugin config to alternate files
+-- TODO: native lsp, git, review keymappings
+
 require("theme")
 require("options")
 require("lsp")
 require("mappings")
 
+-- custom
+require("opacity").setup()
 
 load_theme()
+
+
