@@ -1,72 +1,90 @@
-[colors]
-draw_bold_text_with_bright_colors = true
+# alacritty.toml
 
-[[mouse.bindings]]
-action = "PasteSelection"
-mouse = "Middle"
-
-[colors.cursor]
-cursor = "#528bff"
-text = "CellBackground"
-
-[colors.normal]
-black = "#5c6370"
-blue = "#61afef"
-cyan = "#56b6c2"
-green = "#98c379"
-magenta = "#c678dd"
-red = "#e06c75"
-white = "#828997"
-yellow = "#e5c07b"
-
-[colors.primary]
-background = "#282c34"
-foreground = "#abb2bf"
-
-[colors.selection]
-background = "#3e4451"
-text = "CellForeground"
+[terminal]
+shell = { program = "/usr/bin/zsh", args = [ "--login" ] }
 
 [env]
 TERM = "xterm-256color"
 
-[font]
-size = 12
-
-[font.bold]
-family = "Hack Nerd Font"
-style = "Bold"
-
-[font.glyph_offset]
-x = 0
-y = 0
-
-[font.italic]
-family = "Hack Nerd Font"
-style = "Italic"
-
-[font.normal]
-family = "Hack Nerd Font"
-style = "Regular"
-
-[font.offset]
-x = 0
-y = 1
+[window]
+padding = { x = 2, y = 2}
+dynamic_padding = true
+decorations = "None"
+opacity = 0.90
+blur = true
+title = "alacritty"
+class = { instance = "alacritty", general = "alacritty" }
 
 [scrolling]
 history = 5000
 
-[window]
-dynamic_padding = false
-opacity = 1.0
-title = "alacritty"
+[font]
+normal = { family = "Hack Nerd Font", style = "Regular" }
+bold = { family = "Hack Nerd Font", style = "Bold" }
+italic = { family = "Hack Nerd Font", style = "Italic" }
+bold_italic = { family = "Hack Nerd Font", style = "Bold Italic" }
+size = 14
+offset = { x = 0, y = 0 }
+glyph_offset = { x = 0, y = 0 }
 
-[window.class]
-general = "alacritty"
-instance = "alacritty"
+[selection]
+#semantic_escape_chars = ",│‘|:"' ()[]{}<>t"
+save_to_clipboard     = true
 
-[window.padding]
-x = 4
-y = 4
+[cursor]
+blink_interval        = 500
+blink_timeout         = 0
+#unfocused_hollow      = true
+#thickness             = 0.15
 
 [mouse]
+hide_when_typing      = true
+bindings = [
+  { mouse = "Middle", action = "PasteSelection" },
+]
+
+[keyboard]
+bindings = [
+  { key = "V",        mods = "Control|Shift", action = "Paste" },
+  { key = "C",        mods = "Control|Shift", action = "Copy" },
+  { key = "Paste",                            action = "Paste" },
+  { key = "Copy",                             action = "Copy" },
+  { key = "Insert",   mods = "Shift",         action = "PasteSelection" },
+  { key = "F",        mods = "Control|Shift", action = "SearchForward",     mode = "~Search" },
+  { key = "B",        mods = "Control|Shift", action = "SearchBackward",    mode = "~Search" },
+  { key = "Key0",     mods = "Control",       action = "ResetFontSize" },
+  { key = "Equals",   mods = "Control",       action = "IncreaseFontSize" },
+  { key = "Minus",    mods = "Control",       action = "DecreaseFontSize" },
+  { key = "L",        mods = "Control",       action = "ClearLogNotice" },
+  { key = "L",        mods = "Control",       chars  = "\f" },
+  { key = "PageUp",   mods = "Shift",         action = "ScrollPageUp",      mode = "~Alt" },
+  { key = "PageDown", mods = "Shift",         action = "ScrollPageDown",    mode = "~Alt" },
+  { key = "Up",       mods = "Shift",         action = "ScrollLineUp",      mode = "~Alt" },
+  { key = "Down",     mods = "Shift",         action = "ScrollLineDown",    mode = "~Alt" },
+  { key = "Home",     mods = "Shift",         action = "ScrollToTop",       mode = "~Alt" },
+  { key = "End",      mods = "Shift",         action = "ScrollToBottom",    mode = "~Alt" },
+]
+
+[hints]
+#alphabet              = "jfkdls;ahgurieowpq"
+
+#[[hints.enabled]]
+#command               = "xdg-open"
+## command             = "open" # On macOS
+## command             = { program = "cmd", args = [ "/c", "start", "" ] } # On Windows
+#hyperlinks            = true
+#post_processing       = true
+#persist               = false
+#mouse.enabled         = true
+#binding               = { key = "U", mods = "Control|Shift" }
+#regex                 = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩‘]+"
+
+
+[debug]
+#render_timer          = false
+#persistent_logging    = false
+#log_level             = "Warn"
+#renderer              = "None"
+#print_events          = false
+#highlight_damage      = false
+#prefer_egl            = false
