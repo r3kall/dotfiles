@@ -1,5 +1,8 @@
-# 0. PROFILING (OPTIONAL: check at the end of file)
-# zmodload zsh/zprof
+# 0. PROFILING
+# time ZSH_DEBUGRC=1 zsh -i -c exit
+if [[ -n "$ZSH_DEBUGRC" ]]; then
+  zmodload zsh/zprof
+fi
 
 # 1. COMPINIT
 # https://gist.github.com/ctechols/ca1035271ad134841284?permalink_comment_id=2894219#gistcomment-2894219
@@ -29,7 +32,8 @@ _zpcompinit_custom
 # 2. PROMPT
 # Allow functions in the prompt.
 setopt PROMPT_SUBST
-autoload -Uz colors add-zsh-hook && colors
+autoload -Uz colors add-zsh-hook
+colors
 
 function xterm_title_precmd () {
 	print -Pn -- '\e]2;%n@%m %~\a'
@@ -55,11 +59,24 @@ _defer_load() {
   source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
   ZSH_AUTOSUGGEST_STRATEGY=(history)
   ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=32
+  ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste)
   source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
   
   autoload -Uz bracketed-paste-magic url-quote-magic
   zle -N bracketed-paste bracketed-paste-magic
   zle -N self-insert url-quote-magic
+
+  # This speeds up pasting w/ autosuggest
+  # https://github.com/zsh-users/zsh-autosuggestions/issues/238
+  pasteinit() {
+	OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
+	zle -N self-insert url-quote-magic
+  }
+  pastefinish() {
+	zle -N self-insert $OLD_SELF_INSERT
+  }
+  zstyle :bracketed-paste-magic paste-init pasteinit
+  zstyle :bracketed-paste-magic paste-finish pastefinish
 
   # Lazy-load
   # NOTE: possible add of yarn or others
@@ -177,5 +194,7 @@ zle -N down-line-or-beginning-search
 # 7. MISC
 [ -f "$XDG_CONFIG_HOME/shell/alias" ] && source "$XDG_CONFIG_HOME/shell/alias"
 
-# 0. PROFILING (OPTIONAL: check at start of file)
-# zprof
+# 0. PROFILING
+if [[ -n "$ZSH_DEBUGRC" ]]; then
+  zprof
+fi
