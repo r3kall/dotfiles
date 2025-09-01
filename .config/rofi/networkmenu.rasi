@@ -1,0 +1,90 @@
+configuration {
+  /* dmenu mode is set by the script via ROFI_ARGS */
+  show-icons:                 false;
+  matching:                   "fuzzy";
+  /* keeps headers readable in dmenu mode */
+  separator-style:            "none";
+  hide-scrollbar:             true;
+}
+
+/*****----- Global Properties -----*****/
+@import                          "shared/colors.rasi"
+@import                          "shared/fonts.rasi"
+
+* {
+    border-colour:               var(selected);
+    handle-colour:               var(selected);
+    background-colour:           var(background);
+    foreground-colour:           var(foreground);
+    alternate-background:        var(background-alt);
+    normal-background:           var(background);
+    normal-foreground:           var(foreground);
+    urgent-background:           var(urgent);
+    urgent-foreground:           var(background);
+    active-background:           var(active);
+    active-foreground:           var(background);
+    selected-normal-background:  var(selected);
+    selected-normal-foreground:  var(background);
+    selected-urgent-background:  var(active);
+    selected-urgent-foreground:  var(background);
+    selected-active-background:  var(urgent);
+    selected-active-foreground:  var(background);
+    alternate-normal-background: var(background);
+    alternate-normal-foreground: var(foreground);
+    alternate-urgent-background: var(urgent);
+    alternate-urgent-foreground: var(background);
+    alternate-active-background: var(active);
+    alternate-active-foreground: var(background);
+}
+
+/*****----- Main Window -----*****/
+window {
+  transparency:               "real";
+  width:                      800px;
+  border-radius:              8px;
+  background-color:           @background-colour;
+  border:                     1px solid; 
+  border-color:               @border-colour;
+}
+
+prompt, entry, textbox, element, element-text {
+  background-color:           transparent;
+  text-color:                 @foreground-colour;
+}
+
+listview {
+  /* taller rows help alignment of the tabular output the script prints */
+  padding:                    6px 0px;
+  lines:                      9;
+  fixed-height:               false;
+  dynamic:                    true;
+  scrollbar:                  false;
+}
+
+element {
+  padding:                    6px 4px;
+  border-radius:              4px;
+}
+
+element-text, element-icon {
+  background-color: transparent;
+  text-color: @foreground-colour;
+}
+
+element selected.normal  { background-color: @selected-normal-background; }
+element selected.active  { background-color: @selected-active-background;   }
+element selected.urgent  { background-color: @selected-urgent-background;   }
+
+/* Selected row text colors (contrast against the bg) */
+element-text selected.normal,
+element-icon selected.normal {
+  text-color: @selected-normal-foreground;
+}
+element-text selected.active,
+element-icon selected.active {
+  text-color: @selected-active-foreground;
+}
+element-text selected.urgent,
+element-icon selected.urgent {
+  text-color: @selected-urgent-foreground;
+}

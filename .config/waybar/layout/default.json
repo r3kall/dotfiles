@@ -37,7 +37,7 @@
 		"tooltip-format-disconnected": "Error",
 		"tooltip-format-wifi": "{essid} ({signalStrength}%) ",
 		"tooltip-format-ethernet": "{ifname} 🖧 ",
-		"on-click": "kitty nmtui"
+		"on-click": "rofi-wifi"
 	},
 	"bluetooth": {
 		"format-on": "󰂯",
@@ -52,7 +52,7 @@
 		"on-click-right": "blueman-manager"
 	}, 
 	"battery": {
-		"interval":30,
+		"interval":60,
 		"states": {
 			"good": 95,
 			"warning": 30,
