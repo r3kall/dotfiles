@@ -5,15 +5,14 @@
 #   - Set ROFI_ARGS env var to pass extra flags to rofi (e.g., theme).
 #   - Script enables bluetooth agent automatically for pairing prompts.
 
-set -Eeuo pipefail
-IFS=$'\n\t'
-
+#set -Eeuo pipefail
+set -e
 
 BTCTL_BIN="${BTCTL_BIN:-bluetoothctl}"
 BTCTL_AGENT_CAP="${BTCTL_AGENT_CAP:-DisplayYesNo}"  # DisplayYesNo|KeyboardOnly|NoInputNoOutput
 BTCTL_TIMEOUT="${BTCTL_TIMEOUT:-5}"
 ROFI_BIN="${ROFI_BIN:-rofi}"
-ROFI_ARGS="${ROFI_ARGS:--normal-window -config $XDG_CONFIG_HOME/rofi/networkmenu.rasi -dmenu -i -no-fixed-num-lines -p}"
+ROFI_ARGS="${ROFI_ARGS:--normal-window -config $XDG_CONFIG_HOME/rofi/networkmenu.rasi -dmenu -i -p}"
 
 have() { command -v "$1" >/dev/null 2>&1; }
 have "$ROFI_BIN" || { echo "$ROFI_BIN not found" >&2; exit 1; }
@@ -153,14 +152,27 @@ device_pick() {
 
 device_info() { ${BTCTL_BIN} info "$1" 2>/dev/null | sed 's/^\s\+//'; }
 
-is_connected() { [[ "$( ${BTCTL_BIN} info "$1" | awk '/^Connected:/{print $2}')" == "yes" ]]; }
-is_paired()    { [[ "$( ${BTCTL_BIN} info "$1" | awk '/^Paired:/{print $2}')"    == "yes" ]]; }
-is_trusted()   { [[ "$( ${BTCTL_BIN} info "$1" | awk '/^Trusted:/{print $2}')"   == "yes" ]]; }
+is_connected() { [[ "$( ${BTCTL_BIN} info "$1" | awk '/Connected:/{print $2}')" == "yes" ]]; }
+is_paired()    { [[ "$( ${BTCTL_BIN} info "$1" | awk '/Paired:/{print $2}')"    == "yes" ]]; }
+is_trusted()   { [[ "$( ${BTCTL_BIN} info "$1" | awk '/Trusted:/{print $2}')"   == "yes" ]]; }
+
+await_conn_state() {
+  local mac="$1" want="${2:-yes}" tries="${3:-20}"
+  for ((i=0; i<tries; i++)); do
+    if [[ "$want" == "yes" ]]; then
+      is_connected "$mac" && return 0
+    else
+      is_connected "$mac" || return 0
+    fi
+    sleep 0.25
+  done
+  return 1
+}
 
 device_menu() {
   local mac="$1"
   # TODO check name
-  local name="$( ${BTCTL_BIN} info "$mac" | awk -F': ' '/^Name:/{print $2;exit}' )"
+  local name="$( ${BTCTL_BIN} info "$mac" | awk -F': ' '/Name:/{print $2;exit}' )"
   local acts=()
 
   if is_connected "$mac"; then acts+=("Disconnect"); else acts+=("Connect"); fi
@@ -170,16 +182,21 @@ device_menu() {
 
   local sel="$(rofi_menu "Actions for ${name:-$mac}" "${acts[@]}")" || return 1
   case "$sel" in
-    Connect)           btctl connect "$mac" >/dev/null 2>&1 || notify "Connect failed";;
-    Disconnect)        btctl disconnect "$mac" >/dev/null 2>&1 || notify "Disconnect failed";;
+    Connect) 
+	  if btctl connect "$mac" >/dev/null 2>&1; then await_conn_state "$mac" "yes"
+	  else notify "Connect failed"; fi
+	  ;;
+    Disconnect)
+	  if btctl disconnect "$mac" >/dev/null 2>&1; then await_conn_state "$mac" "no"
+	  else notify "Disconnect failed"; fi 
+	  ;;
     Pair)              btctl pair "$mac" >/dev/null 2>&1 || notify "Pair failed";;
     "Unpair (Remove)") btctl remove "$mac" >/dev/null 2>&1 || notify "Remove failed";;
     Trust)             btctl trust "$mac" >/dev/null 2>&1 || notify "Trust failed";;
     Untrust)           btctl untrust "$mac" >/dev/null 2>&1 || notify "Untrust failed";;
     Info)              rofi_menu "Info" "$(device_info "$mac")" >/dev/null ;;
     Rename)
-      local newname
-      newname="$(printf '' | ${ROFI_BIN} ${ROFI_ARGS} "Rename to:")" || return 0
+      local newname="$(printf '' | ${ROFI_BIN} ${ROFI_ARGS} "Rename to:")" || return 0
       [[ -n "$newname" ]] && btctl name "$mac" "$newname" >/dev/null 2>&1 || notify "Rename failed"
       ;;
     "Remove (Force)")
@@ -223,7 +240,7 @@ main_menu() {
   local powered scan ctlname conn_summary
   powered="$(power_state)"
   scan="$(scan_state)"
-  ctlname="$(${BTCTL_BIN} show 2>/dev/null | awk -F': ' '/^Name:/{print $2;exit}')"
+  ctlname="$(${BTCTL_BIN} show 2>/dev/null | awk -F': ' '/Name:/{print $2;exit}')"
   [[ -z "${ctlname:-}" ]] && ctlname="$(ctl_current)"
   conn_summary="$(device_connected_summary)"
 
