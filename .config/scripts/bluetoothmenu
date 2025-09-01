@@ -1,0 +1,259 @@
+#!/usr/bin/env bash
+# bluetoothmenu — manage Bluetooth via rofi + bluetoothctl
+# deps: rofi, bluetoothctl
+# features:
+#   - Set ROFI_ARGS env var to pass extra flags to rofi (e.g., theme).
+#   - Script enables bluetooth agent automatically for pairing prompts.
+
+set -Eeuo pipefail
+IFS=$'\n\t'
+
+
+BTCTL_BIN="${BTCTL_BIN:-bluetoothctl}"
+BTCTL_AGENT_CAP="${BTCTL_AGENT_CAP:-DisplayYesNo}"  # DisplayYesNo|KeyboardOnly|NoInputNoOutput
+BTCTL_TIMEOUT="${BTCTL_TIMEOUT:-5}"
+ROFI_BIN="${ROFI_BIN:-rofi}"
+ROFI_ARGS="${ROFI_ARGS:--normal-window -config $XDG_CONFIG_HOME/rofi/networkmenu.rasi -dmenu -i -no-fixed-num-lines -p}"
+
+have() { command -v "$1" >/dev/null 2>&1; }
+have "$ROFI_BIN" || { echo "$ROFI_BIN not found" >&2; exit 1; }
+have "$BTCTL_BIN" || { echo "$BTCTL_BIN not found" >&2; exit 1; }
+
+# ---- UI helpers -----------------------------------------------------------
+notify() {
+  if have notify-send; then
+    notify-send "bluetoothmenu" "$*"
+  else
+    printf '[bluetoothmenu] %s\n' "$*" >&2
+  fi
+}
+
+rofi_menu() { # prompt, list...
+  local prompt="$1"; shift
+  # shellcheck disable=SC2068
+  printf '%s\n' "$@" | ${ROFI_BIN} ${ROFI_ARGS} "$prompt"
+}
+
+rofi_confirm() { # returns 0 on yes
+  local prompt="${1:-Are you sure?}"
+  local sel
+  sel=$(printf '%s\n' "No" "Yes" | ${ROFI_BIN} ${ROFI_ARGS} "$prompt") || return 1
+  [[ "$sel" == "Yes" ]]
+}
+
+# ---- bluetoothctl helpers ---------------------------------------------------
+btctl() {
+  ${BTCTL_BIN} --agent="${BTCTL_AGENT_CAP}" --timeout="${BTCTL_TIMEOUT}" "$@"
+}
+
+agent_on() {
+  ${BTCTL_BIN} <<<'agent on'	  >/dev/null 2>&1 || true
+  ${BTCTL_BIN} <<<'default-agent' >/dev/null 2>&1 || true
+}
+
+# ---- controller (adapter) helpers -------------------------------------------
+ctl_list() {
+  # id \t name \t powered \t discovering \t alias
+  ${BTCTL_BIN} list | awk 'NF>0{print $2}' | while read -r ctl; do
+    # show can return multiple lines; parse fields safely
+    local show
+    if show="$(${BTCTL_BIN} show "$ctl" 2>/dev/null)"; then
+	  local name powered disc alias
+	  name=$(grep 'Name:' <<<"$show" | awk '{print $2}')
+	  alias=$(grep 'Alias:' <<<"$show" | awk '{print $2}')
+	  powered=$(grep 'Powered:' <<<"$show" | awk '{print $2}')
+	  disc=$(grep 'Discovering:' <<<"$show" | awk '{print $2}')
+	  printf '%s\t%s\t%s\t%s\t%s\n' "$ctl" "${name:-$ctl}" "${powered:-no}" "${disc:-no}" "${alias:-$ctl}"
+	fi
+  done
+}
+
+ctl_current() {
+  # Prefer default controller else first
+  local def
+  def=$(${BTCTL_BIN} list | awk '/\[default\]/{print $2; exit}')
+  if [[ -n "${def:-}" ]]; then
+    echo "$def"
+  else
+    ${BTCTL_BIN} list | awk 'NR==1{print $2}'
+  fi
+}
+
+ctl_select() {
+  local id="$1"
+  [[ -z "$id" ]] && return 1
+  ${BTCTL_BIN} select "$id" >/dev/null 2>&1
+}
+
+ctl_menu() {
+  local rows sel id powered disc name alias tag
+  rows="$(ctl_list | awk -F'\t' '{printf "%s\t[%s] %s\t(Powered:%s, Scan:%s)\n",$1,$2,$5,$3,$4}')"
+  sel="$(rofi_menu "Controller" "$(printf '%s\n' "$rows" | cut -f2-)")" || return 1
+  id="$(printf '%s\n' "$rows" | awk -v s="$sel" -F'\t' '$2==s{print $1}')"
+  [[ -n "$id" ]] && ctl_select "$id"
+}
+
+power_state() { ${BTCTL_BIN} show 2>/dev/null | grep 'Powered:' | awk '{print $2}'; }
+power_toggle() {
+  local st="$(ctl_power_state)"
+  if [[ "$st" == "yes" ]]; then btctl power off >/dev/null 2>&1 && notify "Bluetooth: Power OFF"
+  else							btctl power on  >/dev/null 2>&1 && notify "Bluetooth: Power ON"; fi
+}
+
+scan_state() { ${BTCTL_BIN} show 2>/dev/null | grep 'Discovering:' | awk '{print $2}'; }
+scan_toggle() {
+  local st="$(ctl_scan_state)"
+  if [[ "$st" == "yes" ]]; then btctl scan off >/dev/null 2>&1 && notify "Scan: OFF"
+  else							btctl scan on  >/dev/null 2>&1 && notify "Scan: ON (auto stops after inactivity)"; fi
+}
+
+# ---- device helpers ---------------------------------------------------------
+device_rows() {
+  local mac info name icon conn pair trust rssi rank badge flags
+  ${BTCTL_BIN} devices | awk '{print $2}' | while read -r mac; do
+    if info="$(${BTCTL_BIN} info "$mac" 2>/dev/null)"; then
+	  name=$(grep 'Name:' <<<"$info" | awk '{print $2}')
+	  [[ -z "$name" ]] && name="$mac"
+	  conn=$(grep 'Connected:' <<<"$info" | awk '{print $2}')
+	  pair=$(grep 'Paired:'    <<<"$info" | awk '{print $2}')
+	  trust=$(grep 'Trusted:'  <<<"$info" | awk '{print $2}')
+	  rssi=$(grep 'RSSI:'      <<<"$info" | awk '{print $2}')
+	  icon=$(grep 'Icon:'      <<<"$info" | awk '{print $2}')
+	  # icon guess
+	  if grep -qiE '(audio|headset|headphone|airpod|)' <<<"$icon"; then icon="🎧"
+	  elif grep -qiE '(keyboard|keychron|k[0-9]{2})' <<<"$icon";   then icon="⌨️"
+	  elif grep -qiE '(mouse|mx|logitech|m[0-9]{2})' <<<"$icon";   then icon="🖱️"
+	  else icon="🔵"; fi
+	  flags=""; badge=""; rank=1; [[ "$conn" == "yes" ]] && { badge="✓ "; rank=0; }
+	  [[ "$pair" == "yes" ]] && flags+="Paired, "
+	  [[ "$trust" == "yes" ]] && flags+="Trusted, "
+	  [[ -n "${rssi:-}" ]] && flags+="RSSI:${rssi}, "
+	  flags="${flags%, }"
+	  printf '%s\t%s %s%s (%s)  [%s]\t%s\n' "$mac" "$badge" "$icon " "$name" "$mac" "${flags:-none}" "$rank"
+	fi
+  done | LC_ALL=C sort -t$'\t' -k3,3n -k2,2f | cut -f1-2
+}
+
+device_connected_summary() {
+  local rows names
+  rows="$(device_rows)"
+  names="$(printf '%s\n' "$rows" | awk -F'\t' '/^\S+\t✓ /{sub(/^\S+\t✓ /,""); sub(/ \([0-9A-F:]+\)  \[.*/,""); print}' | paste -sd, -)"
+  echo "${names:-none}"
+}
+
+device_pick() {
+  local rows sel mac
+  rows="$(device_rows)"
+  [[ -z "$rows" ]] && { notify "No known devices. Enable scan and pair."; return 1; }
+  sel="$(rofi_menu "Device" "$(printf '%s\n' "$rows" | cut -f2-)")" || return 1
+  mac="$(printf '%s\n' "$rows" | awk -v s="$sel" -F'\t' '$2==s{print $1; exit}')"
+  [[ -n "$mac" ]] || return 1
+  echo "$mac"
+}
+
+device_info() { ${BTCTL_BIN} info "$1" 2>/dev/null | sed 's/^\s\+//'; }
+
+is_connected() { [[ "$( ${BTCTL_BIN} info "$1" | awk '/^Connected:/{print $2}')" == "yes" ]]; }
+is_paired()    { [[ "$( ${BTCTL_BIN} info "$1" | awk '/^Paired:/{print $2}')"    == "yes" ]]; }
+is_trusted()   { [[ "$( ${BTCTL_BIN} info "$1" | awk '/^Trusted:/{print $2}')"   == "yes" ]]; }
+
+device_menu() {
+  local mac="$1"
+  # TODO check name
+  local name="$( ${BTCTL_BIN} info "$mac" | awk -F': ' '/^Name:/{print $2;exit}' )"
+  local acts=()
+
+  if is_connected "$mac"; then acts+=("Disconnect"); else acts+=("Connect"); fi
+  if is_paired "$mac"; then acts+=("Unpair (Remove)"); else acts+=("Pair"); fi
+  if is_trusted "$mac"; then acts+=("Untrust"); else acts+=("Trust"); fi
+  acts+=("Info" "Rename" "Remove (Force)")
+
+  local sel="$(rofi_menu "Actions for ${name:-$mac}" "${acts[@]}")" || return 1
+  case "$sel" in
+    Connect)           btctl connect "$mac" >/dev/null 2>&1 || notify "Connect failed";;
+    Disconnect)        btctl disconnect "$mac" >/dev/null 2>&1 || notify "Disconnect failed";;
+    Pair)              btctl pair "$mac" >/dev/null 2>&1 || notify "Pair failed";;
+    "Unpair (Remove)") btctl remove "$mac" >/dev/null 2>&1 || notify "Remove failed";;
+    Trust)             btctl trust "$mac" >/dev/null 2>&1 || notify "Trust failed";;
+    Untrust)           btctl untrust "$mac" >/dev/null 2>&1 || notify "Untrust failed";;
+    Info)              rofi_menu "Info" "$(device_info "$mac")" >/dev/null ;;
+    Rename)
+      local newname
+      newname="$(printf '' | ${ROFI_BIN} ${ROFI_ARGS} "Rename to:")" || return 0
+      [[ -n "$newname" ]] && btctl name "$mac" "$newname" >/dev/null 2>&1 || notify "Rename failed"
+      ;;
+    "Remove (Force)")
+      rofi_confirm "Remove device $name?" && btctl remove "$mac" >/dev/null 2>&1 || true
+      ;;
+  esac
+}
+
+pair_menu() {
+  local mode sel mac
+  sel="$(rofi_menu "Pairing" "Scan ON/OFF" "Scan for 10s & list new" "Enter MAC to pair" "Back")" || return 1
+  case "$sel" in
+    "Scan ON/OFF") scan_toggle ;;
+    "Scan for 10s & list new")
+      btctl scan on >/dev/null 2>&1 || true
+      sleep 10
+      btctl scan off >/dev/null 2>&1 || true
+      # collect all seen devices
+      local rows name
+      rows="$(${BTCTL_BIN} devices | awk '{print $2}' | while read -r mac; do
+		name="$(${BTCTL_BIN} info "$mac" | grep "Name" | awk '{print $2}' 2>/dev/null)"
+		[[ -n $name ]] && printf '%s\t%s\n' "$name" "$mac"
+	  done)"
+      [[ -z "$rows" ]] && { notify "No devices discovered"; return 0; }
+      local choice
+      choice="$(printf '%s\n' "$rows" | ${ROFI_BIN} ${ROFI_ARGS} "Pick to pair")" || return 0
+      mac="$(printf '%s\n' "$rows" | awk -F'\t' -v s="$choice" '$2==s{print $1}')"
+      [[ -n "$mac" ]] && btctl pair "$mac" >/dev/null 2>&1 || true
+      ;;
+    "Enter MAC to pair")
+      mac="$(printf '' | ${ROFI_BIN} ${ROFI_ARGS} "MAC (AA:BB:CC:DD:EE:FF):")" || return 0
+      [[ -n "$mac" ]] && btctl pair "$mac" >/dev/null 2>&1 || true
+      ;;
+    *) : ;;
+  esac
+}
+
+# ---- main menus -------------------------------------------------------------
+main_menu() {
+  agent_on
+  local powered scan ctlname conn_summary
+  powered="$(power_state)"
+  scan="$(scan_state)"
+  ctlname="$(${BTCTL_BIN} show 2>/dev/null | awk -F': ' '/^Name:/{print $2;exit}')"
+  [[ -z "${ctlname:-}" ]] && ctlname="$(ctl_current)"
+  conn_summary="$(device_connected_summary)"
+
+  local items=(
+	"Connected now: ${conn_summary}"
+    "Devices…"
+    "Pairing…"
+    "Power: $( [[ "$powered" == "yes" ]] && echo "ON" || echo "OFF" ) (toggle)"
+    "Scan: $( [[ "$scan" == "yes" ]] && echo "ON" || echo "OFF" ) (toggle)"
+    "Controller: ${ctlname:-unknown}…"
+    "Exit"
+  )
+  local sel
+  sel="$(rofi_menu "Bluetooth" "${items[@]}")" || exit 0
+
+  case "$sel" in
+    "Connected now: "*) : ;;
+    "Devices…")
+      local mac="$(device_pick)" || true
+      [[ -n "${mac:-}" ]] && device_menu "$mac"
+      ;;
+    "Pairing…") pair_menu ;;
+    "Power: "*"(toggle)") power_toggle ;;
+    "Scan: "*"(toggle)") scan_toggle ;;
+    "Controller: "*"…") ctl_menu ;;
+    *) exit 0 ;;
+  esac
+}
+
+# ---- loop --------------------------------------------------------------------
+while true; do
+  main_menu
+done
