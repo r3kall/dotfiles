@@ -45,7 +45,7 @@ function xterm_title_preexec () {
 	[[ "$TERM" == 'screen'* ]] && { print -Pn -- '\e_\005{g}%n\005{-}@\005{m}%m\005{-} \005{B}%~\005{-} %# ' && print -n -- "${(q)1}\e\\"; }
 }
 
-if [[ "$TERM" == (Eterm*|kitty*|alacritty*|aterm*|gnome*|konsole*|kterm*|putty*|rxvt*|screen*|tmux*|xterm*) ]]; then
+if [[ "$TERM" == (Eterm*|kitty*|alacritty*|aterm*|gnome*|konsole*|kterm*|putty*|rxvt*|screen*|tmux*|xterm*|foot*|ghostty*) ]]; then
 	add-zsh-hook -Uz precmd xterm_title_precmd
 	add-zsh-hook -Uz preexec xterm_title_preexec
 fi
@@ -61,7 +61,7 @@ _defer_load() {
   ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=32
   ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste)
   source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-  
+
   autoload -Uz bracketed-paste-magic url-quote-magic
   zle -N bracketed-paste bracketed-paste-magic
   zle -N self-insert url-quote-magic
@@ -69,23 +69,23 @@ _defer_load() {
   # This speeds up pasting w/ autosuggest
   # https://github.com/zsh-users/zsh-autosuggestions/issues/238
   pasteinit() {
-	OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
-	zle -N self-insert url-quote-magic
+    OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
+    zle -N self-insert url-quote-magic
   }
   pastefinish() {
-	zle -N self-insert $OLD_SELF_INSERT
+	  zle -N self-insert $OLD_SELF_INSERT
   }
   zstyle :bracketed-paste-magic paste-init pasteinit
   zstyle :bracketed-paste-magic paste-finish pastefinish
 
   # Lazy-load
   # NOTE: possible add of yarn or others
-  if [ -r /usr/share/nvm/init-nvm.sh ]; then
-    load_nvm() { source /usr/share/nvm/init-nvm.sh; }
-    node() { load_nvm; unfunction node; command node "$@"; }
-    npm()  { load_nvm; unfunction npm;  command npm  "$@"; }
-    npx()  { load_nvm; unfunction npx;  command npx  "$@"; }
-  fi
+  # if [ -r /usr/share/nvm/init-nvm.sh ]; then
+  #   load_nvm() { source /usr/share/nvm/init-nvm.sh; }
+  #   node() { load_nvm; unfunction node; command node "$@"; }
+  #   npm()  { load_nvm; unfunction npm;  command npm  "$@"; }
+  #   npx()  { load_nvm; unfunction npx;  command npx  "$@"; }
+  # fi
 
   add-zsh-hook -d precmd _defer_load
 }
@@ -133,7 +133,7 @@ setopt HIST_FIND_NO_DUPS       # Don't display a line previously found.
 setopt HIST_IGNORE_DUPS        # Don't record an entry that is duplicate of the previous event.
 setopt HIST_IGNORE_SPACE       # Don't record an entry starting with a space.
 setopt HIST_REDUCE_BLANKS      # Remove superfluous blanks before recording an entry.
-setopt HIST_FCNTL_LOCK         # Locking is done by means of the system’s fcntl call, when available. 
+setopt HIST_FCNTL_LOCK         # Locking is done by means of the system’s fcntl call, when available.
 setopt APPEND_HISTORY          # Append to the history file when the shell exits.
 setopt SHARE_HISTORY           # Share history between all sessions.
 
