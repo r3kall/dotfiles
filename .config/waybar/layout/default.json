@@ -17,7 +17,7 @@
 		"escape": true
 	},
 	"clock": {
-		"format": "{:%I:%M:%S %p} ",
+		"format": "{:%H:%M}",
 		"interval": 1,   
 		"tooltip-format": "<tt>{calendar}</tt>",
 		"calendar": {
@@ -34,7 +34,7 @@
 		"format-wifi": "",
 		"format-ethernet":"",
 		"format-disconnected": "",
-		"tooltip-format-disconnected": "Error",
+		"tooltip-format-disconnected": "Disconnected",
 		"tooltip-format-wifi": "{essid} ({signalStrength}%) ",
 		"tooltip-format-ethernet": "{ifname} 🖧 ",
 		"on-click": "rofi-wifi"
@@ -64,21 +64,21 @@
 		"format-alt": "{time} {icon}",
 		"format-icons": [
 			"󰁻",
-		"󰁼",
-		"󰁾",
-		"󰂀",
-		"󰂂",
-		"󰁹"
-		],
+			"󰁼",
+			"󰁾",
+			"󰂀",
+			"󰂂",
+			"󰁹"
+		]
 	},
 	"custom/pacman": {
 		"format": "󰅢 {}",
 		"interval": 30,   
 		"exec": "checkupdates | wc -l",
-		"exec-if": "exit 0",
-		"on-click": "kitty sh -c 'yay -Syu; echo Done - Press enter to exit; read'; pkill -SIGRTMIN+8 waybar",
+		"exec-if": "ping -c1 archlinux.org >/dev/null 2>&1",
+		"on-click": "ghostty -e zsh -c 'paru -Syu; echo Done - Press enter to exit; read'; pkill -SIGRTMIN+8 waybar",
 		"signal": 8,
-		"tooltip": false,
+		"tooltip": false
 	},
 	"custom/expand": {
 		"format": "",
@@ -95,21 +95,21 @@
 			"transition-to-left": true,
 			"click-to-reveal": true
 		},
-		"modules": ["custom/expand","cpu","memory","temperature","custom/endpoint"],
+		"modules": ["custom/expand","cpu","memory","temperature","custom/endpoint"]
 	},
 	"cpu": {
-		"format": "󰻠",
+		"format": "󰻠 {usage}%",
 		"tooltip": true
 	},
 	"memory": {
-		"format": ""
+		"format": " {percentage}%"
 	},
 	"temperature": {
 		"critical-threshold": 80,
-		"format": "",
+		"format": " {temperatureC} C"
 	},
 	"tray": {
 		"icon-size": 14,
 		"spacing": 10
-	},
+	}
 } 

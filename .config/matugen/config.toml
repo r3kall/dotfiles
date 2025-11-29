@@ -12,11 +12,11 @@ output_path = '~/.config/kitty/themes/colors.conf'
 post_hook = "kitty +kitten themes --reload-in=all colors"
 
 [templates.swaync]
-input_path = '~/.config/matugen/templates/colors.css'
+input_path = '~/.config/matugen/templates/colors.conf'
 output_path = '~/.config/swaync/colors.css'
 
 [templates.waybar]
-input_path = '~/.config/matugen/templates/colors.css'
+input_path = '~/.config/matugen/templates/colors.conf'
 output_path = '~/.config/waybar/colors.css'
 
 [templates.rofi]
