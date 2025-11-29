@@ -1,4 +1,5 @@
 # env vars to set on login, zsh settings in ~/config/zsh/.zshrc
+source $HOME/.config/shell/env.sh
 
 # bootstrap .zshrc to ~/.config/zsh/.zshrc, any other zsh config files can also reside here
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"

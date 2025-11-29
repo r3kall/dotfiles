@@ -1,0 +1,60 @@
+# Default programs
+export EDITOR=nvim
+export TERM=ghostty
+export TERMINAL=ghostty
+export BROWSER=firefox
+export BROWSER2=google-chrome
+
+# XDG base dirs
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_STATE_HOME="$HOME/.local/state"
+
+# moving other files and some other vars
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc-2.0" # gtk 3 & 4 are XDG compliant
+export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc"
+export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+export FFMPEG_DATADIR="$XDG_CONFIG_HOME/ffmpeg"
+export DATE=$(date "+%A, %B %e  %_I:%M%P")
+
+# Coding
+# Python
+export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
+export PYTHON_HISTORY="$XDG_DATA_HOME/python/history"
+# Rust
+export CARGO_HOME="$XDG_DATA_HOME/cargo"
+export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+# Go
+export GOPATH="$XDG_DATA_HOME/go"
+export GOBIN="$XDG_DATA_HOME/go/bin"
+export GOMODCACHE="$XDG_CACHE_HOME/go/mod"
+# Node
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
+# Java
+export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME/java"
+export _JAVA_AWT_WM_NONREPARENTING=1
+
+# DevTools
+export TF_DATA_DIR="$XDG_DATA_HOME/terraform"
+export TF_PLUGIN_CACHE_DIR="$XDG_CACHE_HOME/terraform/plugins"
+export TERRAGRUNT_DOWNLOAD="$XDG_CACHE_HOME/terragrunt"
+export ANSIBLE_HOME="$XDG_DATA_HOME/ansible"
+export HELM_CACHE_HOME="$XDG_CACHE_HOME/helm"
+export HELM_CONFIG_HOME="$XDG_CONFIG_HOME/helm"
+export HELM_DATA_HOME="$XDG_DATA_HOME/helm"
+export HELMFILE_CACHE_HOME="$XDG_CACHE_HOME/helmfile"
+export PIPX_HOME="$XDG_DATA_HOME/pipx"
+export PIPX_BIN_DIR="$HOME/.local/bin"
+export UV_CACHE_DIR="$XDG_CACHE_HOME/uv"
+export UV_TOOL_DIR="$XDG_DATA_HOME/uv"
+export KUBECONFIG="$XDG_CONFIG_HOME/kube"
+export KUBECACHEDIR="$XDG_CACHE_HOME/kube"
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"  # ssh-agent systemd service
+
+# CloudProviders
+export AWS_SHARED_CREDENTIALS_FILE="$XDG_CONFIG_HOME/aws/credentials"
+export AWS_CONFIG_FILE="$XDG_CONFIG_HOME/aws/config"
+
+#export FZF_DEFAULT_OPTS="--style minimal --color 16 --layout=reverse --height 30% --preview='bat -p --color=always {}'"
+#export FZF_CTRL_R_OPTS="--style minimal --color 16 --info inline --no-sort --no-preview" # separate opts for history widget
