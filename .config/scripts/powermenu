@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+choice="$(printf '%s\n' lock logout suspend hibernate reboot shutdown | rofi -normal-window -dmenu -i -p 'power')"
+
+case "${choice:-}" in
+  lock)
+    if command -v hyprlock >/dev/null; then hyprlock
+    elif command -v swaylock >/dev/null; then swaylock -f
+    elif command -v loginctl >/dev/null; then loginctl lock-session
+    fi
+    ;;
+  logout) loginctl terminate-user "$USER" ;;
+  suspend) systemctl suspend ;;
+  hibernate) systemctl hibernate ;;
+  reboot) systemctl reboot ;;
+  shutdown) systemctl poweroff ;;
+esac
+

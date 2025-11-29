@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# launcher — run apps
+# deps: rofi
+set -euo pipefail
+LC_ALL=C
+
+# --- Config ------------------------------------------------------------------
+ROFI_BIN="${ROFI_BIN:-rofi}"
+ROFI_ARGS="${ROFI_ARGS:--dmenu -show-icons -matching fuzzy}"
+
+# --- Utils -------------------------------------------------------------------
+have() { command -v "$1" >/dev/null 2>&1; }
+have "$ROFI_BIN" || { echo "rofi not found" >&2; exit 1; }
+
+
+rofi_menu() {
+  local prompt="$1"
+  local -a _argv
+  # shellcheck disable=SC2206
+  _argv=($ROFI_ARGS)
+  "$ROFI_BIN" "${_argv[@]}" -i -p "$PROMPT_ICON$prompt"
+}
+
+rofi_menu() "Run"
