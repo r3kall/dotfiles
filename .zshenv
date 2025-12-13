@@ -5,6 +5,7 @@ source $HOME/.config/shell/env
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 export STARSHIP_CACHE="$XDG_CACHE_HOME/starship.cache"
 export STARSHIP_LOG="$XDG_CACHE_HOME/starship.log"
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 
 # path export
 typeset -U path PATH
