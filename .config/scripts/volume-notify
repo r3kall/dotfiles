@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+
+# Volume + notification helper for PipeWire (wpctl) + swaync
+# - Icons based on volume
+# - Single updating notification using x-canonical-private-synchronous
+# - Bar-style indicator
+
+STEP=5                      # volume step in percent
+SINK="@DEFAULT_AUDIO_SINK@" # use default sink, or replace with specific ID
+
+action="$1"
+
+case "$action" in
+up)
+  wpctl set-volume -l 1.0 "$SINK" "${STEP}%+"
+  ;;
+down)
+  wpctl set-volume "$SINK" "${STEP}%-"
+  ;;
+mute)
+  wpctl set-mute "$SINK" toggle
+  ;;
+*)
+  echo "Usage: $0 {up|down|mute}"
+  exit 1
+  ;;
+esac
+
+# Get current volume + mute state
+info="$(wpctl get-volume "$SINK")"
+# Example: "Volume: 0.42 [MUTED]"
+
+# Extract float value (0.42)
+vol_float="$(printf '%s\n' "$info" | awk '{print $2}')"
+
+# Convert to integer percent (0–100)
+vol_percent="$(awk -v v="$vol_float" 'BEGIN { printf("%d\n", v * 100) }')"
+
+# Detect mute
+if printf '%s\n' "$info" | grep -q 'MUTED'; then
+  muted="yes"
+else
+  muted="no"
+fi
+
+# Clamp volume just in case
+if [ "$vol_percent" -gt 100 ]; then
+  vol_percent=100
+fi
+if [ "$vol_percent" -lt 0 ]; then
+  vol_percent=0
+fi
+
+# Choose icon
+if [ "$muted" = "yes" ] || [ "$vol_percent" -eq 0 ]; then
+  icon="🔇"
+elif [ "$vol_percent" -lt 34 ]; then
+  icon="🔈"
+elif [ "$vol_percent" -lt 67 ]; then
+  icon="🔉"
+else
+  icon="🔊"
+fi
+
+# Build bar-style indicator
+BAR_LENGTH=10
+filled=$((vol_percent * BAR_LENGTH / 100))
+if [ "$filled" -gt "$BAR_LENGTH" ]; then
+  filled=$BAR_LENGTH
+fi
+empty=$((BAR_LENGTH - filled))
+
+bar="$(printf '█%.0s' $(seq 1 $filled))$(printf '░%.0s' $(seq 1 $empty))"
+
+# Summary + body text
+if [ "$muted" = "yes" ]; then
+  summary="$icon Volume muted"
+  vol_for_hint=0
+else
+  summary="$icon Volume: ${vol_percent}%"
+  vol_for_hint=$vol_percent
+fi
+
+body=""
+
+# Single updating notification:
+# string:x-canonical-private-synchronous:volume
+# makes swaync/dunst/etc. replace the previous "volume" notification
+notify-send \
+  -e \
+  -a "Volume" \
+  "$summary" \
+  "$body" \
+  -h "int:value:$vol_for_hint" \
+  -h "string:x-canonical-private-synchronous:volume" \
+  -h "string:category:volume" \
+  -t 1500 # timeout in ms; set to 0 if you want it to stay until closed

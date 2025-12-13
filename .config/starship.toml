@@ -1,20 +1,19 @@
 format = '''$directory$git_branch$git_status$kubernetes$terraform$go$rust$python$character'''
 
 add_newline = false
-scan_timeout = 10
-command_timeout = 100
+
 palette = 'colors'
 
 [palettes.colors]
-color1 = '#b3c5ff'
-color2 = '#1a2e60'
-color3 = '#c5c6d0'
-color4 = '#1e1f25'
-color5 = '#1a2e60'
-color6 = '#121318'
-color7 = '#121318'
-color8 = '#b3c5ff'
-color9 = '#e2bbdc'
+color1 = '#81d3dd'
+color2 = '#00363b'
+color3 = '#bec8c9'
+color4 = '#1a2121'
+color5 = '#00363b'
+color6 = '#0e1415'
+color7 = '#0e1415'
+color8 = '#81d3dd'
+color9 = '#b8c6ea'
 
 # Prompt symbols 
 [character]
@@ -38,11 +37,9 @@ format = '[$branch(:$remote_branch)]($style) '
 style = 'color9 bold'
 
 [git_status]
-format = '([$all_status$ahead_behind]($style))' 
+format = '([$all_status$ahead_behind]($style)) ' 
 style = "color3 dimmed"
 stashed = "≡"
 
 [package]
-disabled = true
-[battery]
 disabled = true

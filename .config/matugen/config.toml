@@ -1,28 +1,68 @@
+#  ┳┳┓┏┓┏┳┓┳┳┏┓┏┓┳┓
+#  ┃┃┃┣┫ ┃ ┃┃┃┓┣ ┃┃
+#  ┛ ┗┛┗ ┻ ┗┛┗┛┗┛┛┗
+#
+
+# Global Configs
 [config]
 version_check = false
 
+# templates
+
+# Hyprland
 [templates.hyprland]
 input_path = '~/.config/matugen/templates/hyprland-colors.conf'
 output_path = '~/.config/hypr/colors.conf'
-# post_hook = 'hyprctl reload'
 
-#[templates.kitty]
-#input_path = '~/.config/matugen/templates/kitty-colors.conf'
-#output_path = '~/.config/kitty/themes/colors.conf'
-#post_hook = "kitty +kitten themes --reload-in=all colors"
+# GTK3
+[templates.gtk3]
+input_path = '~/.config/matugen/templates/gtk.css'
+output_path = '~/.config/gtk-3.0/gtk.css'
 
+# GTK4
+[templates.gtk4]
+input_path = '~/.config/matugen/templates/gtk.css'
+output_path = '~/.config/gtk-4.0/gtk.css'
+
+# Qt5
+[templates.qt5]
+input_path = '~/.config/matugen/templates/qtct-colors.conf'
+output_path = '~/.config/qt5ct/qt5ct-colors.conf'
+
+# Qt6
+[templates.qt6]
+input_path = '~/.config/matugen/templates/qtct-colors.conf'
+output_path = '~/.config/qt6ct/qt6ct-colors.conf'
+
+# Ghostty terminal
+[templates.ghostty]
+input_path = '~/.config/matugen/templates/matugen-ghostty'
+output_path = '~/.config/ghostty/themes/matugen'
+post_hook = 'pkill -SIGUSR2 ghostty'
+
+# Foot terminal
+[templates.foot]
+input_path = '~/.config/matugen/templates/matugen-foot.ini'
+output_path = '~/.config/foot/colors.ini'
+
+# Swaync
 [templates.swaync]
-input_path = '~/.config/matugen/templates/colors.conf'
-output_path = '~/.config/swaync/colors.css'
+input_path = '~/.config/matugen/templates/matugen-swaync.css'
+output_path = '~/.config/swaync/themes/colors.css'
+post_hook = 'swaync-client -rs'
 
+# Waybar
 [templates.waybar]
-input_path = '~/.config/matugen/templates/colors.conf'
+input_path = '~/.config/matugen/templates/matugen-waybar.css'
 output_path = '~/.config/waybar/colors.css'
+post_hook = 'pkill -SIGUSR2 waybar'
 
+# Rofi
 [templates.rofi]
 input_path = '~/.config/matugen/templates/rofi-colors.rasi'
 output_path = '~/.config/rofi/shared/matugen-colors.rasi'
 
+# Starship
 [templates.starship]
 input_path = '~/.config/matugen/templates/starship-colors.toml'
 output_path = '~/.config/starship.toml'

@@ -1,33 +1,273 @@
-## CORE ##
-alias \
-\
-c="clear" \
-vim="nvim" \
-v="nvim" \
-cat="bat" \
-ls="eza" \
-ll="eza -la --group-directories-first --color=auto" \
-..="cd .." \
-grep="grep --color=auto" \
-egrep="grep -E --color=auto" \
-fgrep="grep -F --color=auto" \
-k="killall" \
+# ~/.config/shell/alias
+# -----------------------------------------------------------------------------
+# Helpers
+# -----------------------------------------------------------------------------
+ALIAS_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/shell/alias"
+__has() { command -v "$1" >/dev/null 2>&1; }
 
-## GIT ##
-alias \
-\
-g="git" \
-gst="git status" \
-gcm="git commit" \
-gp="git push"
+# -----------------------------------------------------------------------------
+# CORE / QoL
+# -----------------------------------------------------------------------------
+alias c='clear'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
 
-## YOUTUBE-DL ##
-p() { ps aux | grep -E -- "${*:-.}"; }
-yt() { yt-dlp --yes-playlist -f 'best[ext=mp4]/best' -o '%(title)s.%(ext)s' -- "$@"; }
-yta() { yt-dlp --yes-playlist -x -f 'bestaudio[ext=m4a]/bestaudio[ext=mp3]' -o '%(title)s.%(ext)s' -- "$@"; }
-                
-## UTILS ##
-alias calias='bat "$XDG_CONFIG_HOME/shell/alias"'
+# Editor
+alias vim='nvim'
+alias v='nvim'
 
-## DOTFILES ##
+# Grep colors
+alias grep='grep --color=auto'
+alias egrep='grep -E --color=auto'
+alias fgrep='grep -F --color=auto'
+
+# Better ls / cat
+if __has eza; then
+  alias ls='eza'
+  alias ll='eza -la --group-directories-first --color=auto'
+  alias la='eza -a --group-directories-first --color=auto'
+else
+  alias ll='ls -lah'
+  alias la='ls -A'
+fi
+
+if __has bat; then
+  alias cat='bat'
+fi
+
+# Process search
+p() {
+  if __has pgrep; then
+    pgrep -af -- "${*:-.}"
+  else
+    ps aux | grep -E -- "${*:-.}" | grep -v grep
+  fi
+}
+
+# Misc helpers
+alias path='printf "%s\n" "${PATH//:/\n}"'
+alias now='date +"%Y-%m-%d %H:%M:%S"'
+
+extract() {
+  [ -f "$1" ] || { echo "extract: file not found: $1" >&2; return 1; }
+  case "$1" in
+    *.tar.bz2)  tar xjf -- "$1" ;;
+    *.tar.gz)   tar xzf -- "$1" ;;
+    *.tar.xz)   tar xJf -- "$1" ;;
+    *.tar.zst)  tar --use-compress-program=unzstd -xf -- "$1" ;;
+    *.tar)      tar xf -- "$1" ;;
+    *.tbz2)     tar xjf -- "$1" ;;
+    *.tgz)      tar xzf -- "$1" ;;
+    *.bz2)      bunzip2 -- "$1" ;;
+    *.gz)       gunzip -- "$1" ;;
+    *.xz)       unxz -- "$1" ;;
+    *.zst)      unzstd -- "$1" ;;
+    *.zip)      unzip -- "$1" ;;
+    *.7z)       7z x -- "$1" ;;
+    *.rar)      unrar x -- "$1" ;;
+    *)          echo "extract: unknown archive: $1" >&2; return 2 ;;
+  esac
+}
+
+# -----------------------------------------------------------------------------
+# ALIASES NAVIGATION
+# -----------------------------------------------------------------------------
+# Open aliases file in $EDITOR
+alias ea='${EDITOR:-nvim} "$ALIAS_FILE"'
+
+# Fuzzy-search aliases (fzf if available, fallback to less)
+fa() {
+  if __has fzf; then
+    grep -E '^(alias|[a-zA-Z0-9_]+\(\))' "$ALIAS_FILE" | fzf
+  else
+    ${PAGER:-less} "$ALIAS_FILE"
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# ARCH LINUX
+# -----------------------------------------------------------------------------
+__aur() {
+  if __has paru; then echo "paru"
+  elif __has yay; then echo "yay"
+  else echo ""
+  fi
+}
+
+upd() {
+  local aur
+  aur="$(__aur)"
+  if [ -n "$aur" ]; then
+    "$aur" -Syu
+  else
+    sudo pacman -Syu
+  fi
+}
+
+pacs() { pacman -Ss -- "$*"; }
+paci() {
+  local aur
+  aur="$(__aur)"
+  if [ -n "$aur" ]; then
+    "$aur" -S -- "$@"
+  else
+    sudo pacman -S -- "$@"
+  fi
+}
+pacr() { sudo pacman -R -- "$@"; }
+pacrn() { sudo pacman -Rns -- "$@"; }
+pacu() { sudo pacman -U -- "$@"; }
+
+orphans() { pacman -Qtdq; }
+
+# systemd
+alias sc='systemctl'
+alias scu='systemctl --user'
+alias jc='journalctl -xe'
+alias jcu='journalctl --user -xe'
+alias jcf='journalctl -f'
+
+# -----------------------------------------------------------------------------
+# DOTFILES (bare repo)
+# -----------------------------------------------------------------------------
 alias dot='/usr/bin/git --git-dir="$HOME/.dotfiles" --work-tree="$HOME"'
+
+# -----------------------------------------------------------------------------
+# GIT
+# -----------------------------------------------------------------------------
+alias g='git'
+alias gst='git status'
+alias ga='git add'
+alias gaa='git add -A'
+alias gb='git branch'
+alias gba='git branch -a'
+alias gbd='git branch -d'
+alias gbD='git branch -D'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias gsw='git switch'
+alias gsc='git switch -c'
+
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gca='git commit --amend'
+alias gcan='git commit --amend --no-edit'
+
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gl='git log --oneline --decorate --graph -20'
+alias gll='git log --stat -20'
+
+alias gf='git fetch --all --prune'
+alias gp='git push'
+alias gpf='git push --force-with-lease'
+alias gpl='git pull --rebase'
+alias gpr='git pull --rebase --autostash'
+alias gpo='git push -u origin HEAD'
+
+gcur() { git rev-parse --abbrev-ref HEAD; }
+groot() { cd -- "$(git rev-parse --show-toplevel)" || return; }
+
+# -----------------------------------------------------------------------------
+# RIPGREP (rg)
+# -----------------------------------------------------------------------------
+if __has rg; then
+  alias rg='rg --smart-case --hidden --follow'
+  alias rgi='rg -i'
+  alias rgf='rg --files'
+fi
+
+# -----------------------------------------------------------------------------
+# FD
+# -----------------------------------------------------------------------------
+if __has fd; then
+  alias f='fd'
+  alias ff='fd -H'
+  alias fdg='fd .git'
+fi
+
+# -----------------------------------------------------------------------------
+# FZF
+# -----------------------------------------------------------------------------
+if __has fzf; then
+  # Use fd / rg if available
+  if __has fd; then
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+  elif __has rg; then
+    export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*"'
+  fi
+
+  export FZF_DEFAULT_OPTS='
+    --height 40%
+    --layout=reverse
+    --border
+    --info=inline
+  '
+
+  # File opener
+  fo() {
+    local file
+    file="$(fzf)" || return
+    ${EDITOR:-nvim} "$file"
+  }
+
+  # Change directory
+  fcd() {
+    local dir
+    dir="$(fd -t d 2>/dev/null | fzf)" || return
+    cd -- "$dir" || return
+  }
+
+  # Git helpers
+  fgco() {
+    git branch --all | sed 's/^[* ] //' | fzf | xargs git checkout
+  }
+
+  fgbd() {
+    git branch | sed 's/^[* ] //' | fzf -m | xargs -r git branch -d
+  }
+fi
+
+# -----------------------------------------------------------------------------
+# ZOXIDE
+# -----------------------------------------------------------------------------
+if __has zoxide; then
+  eval "$(zoxide init bash)"
+  alias z='z'
+  zi() { zoxide query -i | xargs -r cd; }
+fi
+
+# -----------------------------------------------------------------------------
+# KUBECTL
+# -----------------------------------------------------------------------------
+if __has kubectl; then
+  alias k='kubectl'
+  alias kg='kubectl get'
+  alias kga='kubectl get all'
+  alias kgp='kubectl get pods'
+  alias kgs='kubectl get svc'
+  alias kgd='kubectl get deploy'
+  alias kgn='kubectl get nodes'
+  alias kgns='kubectl get ns'
+
+  alias kd='kubectl describe'
+  klogs() { kubectl logs -f --tail=200 "$@"; }
+  kx() { kubectl exec -it "$@"; }
+
+  alias ka='kubectl apply -f'
+fi
+
+# -----------------------------------------------------------------------------
+# TERRAFORM
+# -----------------------------------------------------------------------------
+if __has terraform; then
+  alias tf='terraform'
+  alias tfv='terraform version'
+  alias tffmt='terraform fmt -recursive'
+  alias tfval='terraform validate'
+  alias tfi='terraform init'
+  alias tfp='terraform plan'
+  alias tfa='terraform apply'
+  alias tfo='terraform output'
+fi

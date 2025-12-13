@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+# Script for selecting wallpapers with rofi + swww
+
+source utils.sh
+
+# Variables
+WALLPAPER_DIR="${HOME}/Pictures/wallpapers"
+WALLPAPER_CURR="$HOME/.config/hypr/.current_wallpaper"
+ROFI_THEME="${HOME}/.config/rofi/themes/wallpaper-select.rasi"
+
+# swww transition config
+FPS=60
+TYPE="any"
+DURATION=2
+BEZIER=".42,.9,.91,.78"
+SWWW_PARAMS=(--transition-fps "${FPS}"
+  --transition-type "${TYPE}"
+  --transition-duration "${DURATION}"
+  --transition-bezier "${BEZIER}")
+
+# Checks
+notify_miss_alt "bc"
+notify_miss_alt "rofi"
+notify_miss_alt "swww"
+notify_miss_alt "matugen"
+
+FOCUSED_MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+[[ -z "$FOCUSED_MONITOR" ]] && notify_err_alt "Could not detect focused monitor"
+
+# Monitor details
+scaleFactor=$(hyprctl monitors -j | jq -r --arg mon "$FOCUSED_MONITOR" '.[] | select(.name == $mon) | .scale')
+monitorHeight=$(hyprctl monitors -j | jq -r --arg mon "$FOCUSED_MONITOR" '.[] | select(.name == $mon) | .height')
+
+iconSize=$(echo "scale=1; ($monitorHeight * 3) / ($scaleFactor * 100)" | bc)
+adjustedIconSize=$(echo "$iconSize" | awk '{if ($1 < 20) $1 = 20; if ($1 > 40) $1 = 40; print $1}')
+ROFI_OVERRIDE="element-icon{size:${adjustedIconSize}%;}"
+
+mapfile -t PICS < <(
+  find -L "${WALLPAPER_DIR}" \
+    -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' \) \
+    -print0 |
+    xargs -0 -n1 printf '%s\n' |
+    sort
+)
+
+# Use date variable to increase randomness
+randomNumber=$((($(date +%s) + RANDOM + $$)))
+randomPicture="${PICS[$((randomNumber % ${#PICS[@]}))]}"
+randomChoice="[${#PICS[@]}] Random"
+
+rofiCommand="rofi -i -show -dmenu -config $ROFI_THEME -theme-str $ROFI_OVERRIDE"
+
+menu() {
+  IFS=$'\n' sorted_options=($(sort <<<"${PICS[*]}"))
+
+  # Random entry first
+  printf "%s\x00icon\x1f%s\n" "$randomChoice" "$randomPicture"
+
+  for picPath in "${sorted_options[@]}"; do
+    picName=$(basename "$picPath")
+    if [[ "$picName" =~ \.gif$ ]]; then
+      cacheGifImage="$HOME/.cache/gif_preview/${picName}.png"
+      if [[ ! -f "cache_gif_image" ]]; then
+        mkdir -p "$HOME/.cache/git_preview"
+        magic "picPath[0]" -resize 1920x1080 "$cacheGifImage"
+      fi
+      printf "%s\x00icon\x1f%s\n" "$picName" "$cacheGifImage"
+    else
+      printf "%s\x00icon\x1f%s\n" "$picName" "$picPath"
+    fi
+  done
+}
+
+applyImageWallpaper() {
+  local img="$1"
+  swww img -o "$FOCUSED_MONITOR" "${img}" "${SWWW_PARAMS[@]}"
+  # Track current wallpaper
+  ln -sf $img $WALLPAPER_CURR
+  # Animation timer
+  sleep $(echo $DURATION + "0.25" | bc)
+  matugen image "$img"
+}
+
+main() {
+  choice=$(menu | $rofiCommand) || true
+  choice=$(echo "$choice" | xargs)
+  randomChoice=$(echo "$randomChoice" | xargs)
+
+  # User cancelled
+  [[ -z "${choice}" ]] && exit 0
+
+  # Random selection
+  if [[ "${choice}" == "${randomChoice}" ]]; then
+    applyImageWallpaper "${randomPicture}"
+    exit 0
+  fi
+
+  # Search for the selected file in the wallpapers directory, including subdirectories
+  choiceBasename=$(basename "$choice" | sed 's/\(.*\)\.[^.]*$/\1/')
+  selectedFile=$(find "$WALLPAPER_DIR" -iname "$choiceBasename.*" -print -quit)
+
+  if [[ -n "${selectedFile}" ]]; then
+    applyImageWallpaper "${selectedFile}"
+  else
+    notify_err_alt "Image not found ${choice}"
+  fi
+}
+
+if pidof rofi >/dev/null; then
+  pkill rofi
+fi
+
+main

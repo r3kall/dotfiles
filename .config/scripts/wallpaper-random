@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Script for selecting wallpapers with rofi + swww
+
+source utils.sh
+
+# Variables
+WALLPAPER_DIR="${HOME}/Pictures/wallpapers"
+WALLPAPER_CURR="$HOME/.config/hypr/.current_wallpaper"
+
+# swww transition config
+FPS=60
+TYPE="any"
+DURATION=2
+BEZIER=".42,.9,.91,.78"
+SWWW_PARAMS=(--transition-fps "${FPS}"
+  --transition-type "${TYPE}"
+  --transition-duration "${DURATION}"
+  --transition-bezier "${BEZIER}")
+
+FOCUSED_MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+[[ -z "$FOCUSED_MONITOR" ]] && notify_err_alt "Could not detect focused monitor"
+
+# Checks
+notify_miss_alt "bc"
+notify_miss_alt "fd"
+notify_miss_alt "swww"
+notify_miss_alt "matugen"
+
+applyImageWallpaper() {
+  local img="$1"
+  swww img -o "$FOCUSED_MONITOR" "${img}" "${SWWW_PARAMS[@]}"
+  # Track current wallpaper
+  ln -sf $img $WALLPAPER_CURR
+  # Animation timer
+  sleep $(echo $DURATION + "0.25" | bc)
+  matugen image "$img"
+}
+
+main() {
+  local pics=($(fd -i -t f -E .git '\.(jpg|jpeg|png|webp|gif|bmp|tiff)$' "$WALLPAPER_DIR"))
+
+  # Use date variable to increase randomness
+  local randomNumber=$((($(date +%s) + RANDOM + $$)))
+  local randomPicture="${pics[$((randomNumber % ${#pics[@]}))]}"
+
+  # Search for the selected file in the wallpapers directory, including subdirectories
+  randomPicture=$(basename "$randomPicture" | sed 's/\(.*\)\.[^.]*$/\1/')
+  local selectedFile=$(find "$WALLPAPER_DIR" -iname "$randomPicture.*" -print -quit)
+
+  if [[ -n "${selectedFile}" ]]; then
+    applyImageWallpaper "${selectedFile}"
+  else
+    notify_err_alt "Image not found ${choice}"
+  fi
+}
+
+main

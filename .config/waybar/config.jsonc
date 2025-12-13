@@ -1,0 +1,251 @@
+/***
+ *    ┓ ┏┏┓┓┏┳┓┏┓┳┓  ┳┓┳┳┳┓┳┓┓ ┏┓┏┓  ┏┓┏┓┳┓┏┓┳┏┓
+ *    ┃┃┃┣┫┗┫┣┫┣┫┣┫━━┣┫┃┃┣┫┣┫┃ ┣ ┗┓━━┃ ┃┃┃┃┣ ┃┃┓
+ *    ┗┻┛┛┗┗┛┻┛┛┗┛┗  ┻┛┗┛┻┛┻┛┗┛┗┛┗┛  ┗┛┗┛┛┗┻ ┻┗┛
+ *                                              
+ */
+
+ 
+ {
+
+	/*----------Global Properties-------------*/
+	"layer": "top",
+	"position": "top",
+	"spacing": 0,
+	"height": 35,
+	"margin-top": 0,
+	"margin-right": 0,
+	"margin-bottom": 0,
+	"margin-left": 0,
+	/*----------Modules Left----------------*/
+	"modules-left": [
+		"custom/launcher",
+		"group/utility",
+		"custom/playerctl#backward",
+		"custom/playerctl#play",
+		"custom/playerctl#foward",
+		"custom/playerlabel"
+	],
+	/*----------Modules Center--------------*/
+	"modules-center": [
+		"custom/weather",
+		"hyprland/workspaces",
+		"custom/swaync"
+	],
+	/*----------Modules Center--------------*/
+	"modules-right": [
+		"tray",
+		"battery",
+		"wireplumber#sink",
+		"wireplumber#source",
+		"network",
+    "bluetooth",
+		"clock"
+	],
+
+	/*----------Hyprland Workspace----------*/
+	"hyprland/workspaces": {
+		"format": "{name}",
+		"on-click": "activate",
+		"on-scroll-down": "hyprctl dispatch workspace e+1",
+		"on-scroll-up": "hyprctl dispatch workspace e-1"
+	},
+
+	/*-----------Weather---------------*/
+	"custom/weather": {
+		"format": "{}",
+		"format-alt": "{alt}: {}",
+		"format-alt-click": "click",
+		"interval": 3600,
+		"return-type": "json",
+		"exec": "$HOME/.config/waybar/scripts/Weather.py",
+	    	//"exec": "$HOME/.config/hypr/UserScripts/Weather.sh",
+	    	//"exec-if": "ping wttr.in -c1",
+	    	"tooltip": true
+	},
+	/*-----------SwayNC----------------*/
+
+	"custom/swaync": {
+		"tooltip": true,
+		"tooltip-format": "Left Click: Launch Notification Center\nRight Click: Do not Disturb",
+		"format": "{} {icon} ",
+		"format-icons": {
+			"notification": "<span foreground='red'><sup></sup></span>",
+			"none": "",
+			"dnd-notification": "<span foreground='red'><sup></sup></span>",
+			"dnd-none": "",
+			"inhibited-notification": "<span foreground='red'><sup></sup></span>",
+			"inhibited-none": "",
+			"dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
+			"dnd-inhibited-none": ""
+		},
+		"return-type": "json",
+		"exec-if": "which swaync-client",
+		"exec": "swaync-client -swb",
+		"on-click": "sleep 0.1 && swaync-client -t -sw",
+		"on-click-right": "swaync-client -d -sw",
+		"escape": true
+	},
+
+
+	/*---------------Launcher-------------*/
+	"custom/launcher": {
+		"format": "󰣇",
+		"tooltip": false,
+		"on-click": "~/.config/scripts/launcher"
+	},
+
+	/*--------------Pacman--------------------*/
+	"custom/pacman": {
+		"format": "󰅢 {}",
+		"interval": 1800,   
+		"exec": "checkupdates | wc -l",
+		"exec-if": "exit 0",
+		"on-click": "foot --title PacUpdate -e zsh -c 'sleep 0.1; paru -Syu --skipreview; echo Done - Press enter to exit; read' 2>/dev/null; pkill -SIGRTMIN+8 waybar",
+		"signal": 8,
+		"tooltip": false
+	},
+
+	/*-----------Cpu, Memory, Colorpicker, Temperature, Idle-inhibitor------*/
+	"cpu": {
+		"format": "󰻠",
+		"tooltip": true
+	},
+	"memory": {
+		"format": ""
+	},
+	"temperature": {
+		"critical-threshold": 80,
+		"format": ""
+	},
+	"custom/colorpicker": {
+		"format": "{}",
+		"return-type": "json",
+		"interval": "once",
+		"exec": "~/.config/waybar/scripts/Colorpicker.sh -j",
+		"on-click": "~/.config/waybar/scripts/Colorpicker.sh",
+		"signal": 1
+	},
+
+	"idle_inhibitor": {
+		"format": "{icon}",
+		"format-icons": {
+			"activated": "",
+			"deactivated": ""
+		}
+	},
+
+	/*----------------Expand---------------*/
+	"custom/expand": {
+		"format": "",
+		"tooltip": true,
+		"tooltip-format": "Click to show utilities"
+	},
+
+	/*-----------Group-------------------*/
+	"group/utility": {
+		"orientation": "inherit",
+		"drawer": {
+			"transition-duration": 600,
+			"children-class": "child-utility",
+			"transition-left-to-right": true,
+			"click-to-reveal": true
+		},
+		"modules": [
+			"custom/expand",
+			"cpu",
+			"memory",
+			"temperature",
+			"custom/pacman",
+			"idle_inhibitor",
+			"custom/colorpicker"
+		]
+	},
+
+	/*---------------Playerctl---------------*/
+	"custom/playerctl#backward": {
+    "exec": "~/.config/waybar/scripts/playerctl_backward.sh",
+    "return-type": "text",
+    "interval": 2,
+		"on-click": "playerctl previous",
+		"tooltip": false
+	},
+	"custom/playerctl#foward": {
+    "exec": "~/.config/waybar/scripts/playerctl_forward.sh",
+    "return-type": "text",
+    "interval": 2,
+		"on-click": "playerctl next",
+		"tooltip": false
+	},
+	"custom/playerctl#play": {
+    "exec": "~/.config/waybar/scripts/playerctl_play.sh",
+		"return-type": "json",
+		"format": "{icon}",
+		"format-icons": {
+			"Paused": "<span> </span>",
+			"Playing": "<span>󰏥 </span>",
+			"Stopped": "<span> </span>"
+		},
+		"on-click": "playerctl play-pause"
+	},
+	"custom/playerlabel": {
+    "exec": "~/.config/waybar/scripts/playerctl_label.sh",
+		"return-type": "json",
+		"format": "<span>󰎈 {text} 󰎈</span>",
+    "markup": true,
+		"max-length": 40,
+		"on-click": ""
+	},
+
+	/*---------------WirePlumber------------*/
+  "wireplumber#sink": {
+    "format": "{icon} {volume}%",
+    "format-muted": "",
+    "format-icons": [ "", "", "" ],
+    "on-click": "foot -a wiremix -T wiremix -e zsh -c 'sleep 0.1; wiremix' 2>/dev/null",
+    "scroll-step": 5
+  },
+
+  "wireplumber#source": {
+    "node-type": "Audio/Source",       // this tells the module to control the mic
+    "format": " {volume}%",
+    "format-muted": " {volume}%",
+    "on-click": "foot -a wiremix -T wiremix -e zsh -c 'sleep 0.1; wiremix' 2>/dev/null",
+    "scroll-step": 5
+  },
+
+	/*--------------Network-----------------*/
+	"network": {
+		"format-disconnected": "󰖪 0% ",
+		"format-ethernet": "󰈀 100% ",
+		"format-linked": "{ifname} (No IP)",
+		"format-wifi": " {signalStrength}%",
+		"tooltip-format": "Connected to {essid} {ifname} via {gwaddr}",
+		"on-click": "foot -a impala -T impala -e zsh -c 'sleep 0.1; impala' 2>/dev/null"
+	},
+
+	/*------------Bluetooth--------------------*/
+  "bluetooth": {
+      "format": "",
+      "format-disabled": "󰂲",
+      "format-connected": "", 
+      "tooltip-format": "{device_enumerate}",
+      "tooltip-format-enumerate-connected": "{device_alias}\t{device_battery_percentage}%",
+      "interval": 8,
+      "on-click": "foot -a bluetui -T bluetui -e zsh -c 'sleep 0.1; bluetui' 2>/dev/null",
+      "on-click-right": "bluetoothctl power toggle"
+  },
+
+	/*------------Tray--------------------*/
+	"tray": {
+		"icon-size": 20,
+		"spacing": 8
+	},
+
+	/*------------Clock------------------*/
+	"clock": {
+		"format": "󰥔 {:%H:%M} ",
+		"tooltip-format": "{:%A, %B %d, %Y}",
+	}
+
+ }

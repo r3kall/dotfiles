@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+STATE_DIR="${XDG_RUNTIME_DIR:-/tmp}"
+PROFILE_FILE="$STATE_DIR/last_powerprofile"
+PPD_CMD="powerprofilesctl"
+NOTIFY_CMD="notify-send"
+
+pause_media() {
+  # Pause only currently playing MPRIS players
+  if command -v playerctl >/dev/null 2>&1; then
+    for p in $(playerctl -l 2>/dev/null); do
+      status=$(playerctl -p "$p" status 2>/dev/null)
+      if [[ "$status" == "Playing" ]]; then
+        playerctl -p "$p" pause
+      fi
+    done
+  fi
+}
+
+notify_ephemeral() {
+  local summary="$1"
+  local body="$2"
+
+  if command -v "$NOTIFY_CMD" >/dev/null 2>&1; then
+    "$NOTIFY_CMD" -e -a "Locker" -u low -t 2000 "$summary" "$body"
+  fi
+}
+
+case "$1" in
+lock)
+  pause_media
+
+  # Save current power profile (if available) and switch to power-saver
+  if command -v "$PPD_CMD" >/dev/null 2>&1; then
+    current_profile="$($PPD_CMD get 2>/dev/null || true)"
+
+    if [[ -n "$current_profile" ]]; then
+      echo "$current_profile" >"$PROFILE_FILE"
+    fi
+
+    if $PPD_CMD set power-saver 2>/dev/null; then
+      notify_ephemeral "Power profile" "Switched to power-saver while locked."
+    else
+      notify_ephemeral "Power profile" "Failed to switch to power-saver."
+    fi
+    sleep 0.25
+  fi
+  ;;
+
+unlock)
+  if command -v "$PPD_CMD" >/dev/null 2>&1; then
+    # Default to balanced if nothing saved or invalid
+    target_profile="balanced"
+
+    if [[ -f "$PROFILE_FILE" ]]; then
+      prev_profile="$(cat "$PROFILE_FILE")"
+      case "$prev_profile" in
+      performance | balanced | power-saver)
+        target_profile="$prev_profile"
+        ;;
+      esac
+    fi
+
+    sleep 0.25
+    if $PPD_CMD set "$target_profile" 2>/dev/null; then
+      notify_ephemeral "Power profile" "Active profile: $target_profile."
+    else
+      notify_ephemeral "Power profile" "Failed to set profile: $target_profile."
+    fi
+  else
+    notify_ephemeral "Power profile" "powerprofilesctl not available."
+  fi
+  ;;
+
+*)
+  echo "Usage: $0 lock|unlock"
+  exit 1
+  ;;
+esac

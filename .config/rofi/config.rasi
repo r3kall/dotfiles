@@ -1,25 +1,28 @@
 /*****----- Configuration -----*****/
 configuration {
-	modi:                       "drun,run,filebrowser";
-    show-icons:                 true;
-    display-drun:               " Apps";
-    display-run:                " Run";
-    display-filebrowser:        " Files";
-	drun-display-format:        "{name}";
-	window-format:              "{w} · {c} · {t}";
-	terminal:					"kitty";
+	modi:                "drun,run,filebrowser";
+  show-icons:          true;
+  display-drun:        "  Apps";
+  display-run:         "  Run";
+  display-filebrowser: "  Files";
+  drun-display-format: "{name}";
+	window-format:       "{w} · {c} · {t}";
+  hover-select:        true;
+  me-select-entry:     "MouseSecondary";
+  me-accept-entry:     "MousePrimary";
 
 	filebrowser {
-		directory:				"/home/arch";
-		directories-first:		true;
-		sorting-method:			"name";
-		show-hidden:			false;
-		cancel-returns-1:		true;
-		// command: "xdg-open";
+		directory:         "/home/arch";
+		directories-first: true;
+		sorting-method:    "name";
+		show-hidden:       true;
+		cancel-returns-1:  true;
+		command:           "xdg-open";
 	}
+
 	timeout {
-		action:					"kb-cancel";
-		delay:					30;
+		action: "kb-cancel";
+		delay:  30;
 	}
 }
 
@@ -60,14 +63,14 @@ window {
     location:                    center;
     anchor:                      center;
     fullscreen:                  false;
-    width:                       600px;
+    width:                       35%;
     x-offset:                    0px;
-    y-offset:                    0px;
+    y-offset:                    -5px;
 
     /* properties for all widgets */
     enabled:                     true;
     margin:                      0px;
-    padding:                     2px;
+    padding:                     0px;
     border:                      0px solid;
     border-radius:               10px;
     border-color:                @border-colour;
@@ -87,26 +90,34 @@ window {
 /*****----- Main Box -----*****/
 mainbox {
     enabled:                     true;
-    spacing:                     12px;
+    spacing:                     10px;
     margin:                      0px;
-    padding:                     2px;
+    padding:                     10px;
     border:                      0px solid;
     border-radius:               0px 0px 0px 0px;
     border-color:                @border-colour;
-    background-color:            transparent;
-    children:                    [ "inputbar", "mode-switcher", "message", "listview" ];
+    background-color:            inherit;
+    children:                    [ "inputbar", "message", "custombox" ];
+}
+
+custombox {
+    spacing:          0px;
+    background-color: @background-colour;
+    text-color:       @foreground-colour;
+    orientation:      horizontal;
+    children:         [ "mode-switcher", "listview"];
 }
 
 /*****----- Inputbar -----*****/
 inputbar {
     enabled:                     true;
-    spacing:                     12px;
+    spacing:                     10px;
     margin:                      0px;
-    padding:                     2px;
+    padding:                     8px 12px;
     border:                      0px solid;
-    border-radius:               0px;
+    border-radius:               8px;
     border-color:                @border-colour;
-    background-color:            transparent;
+    background-color:            @alternate-background;
     text-color:                  @foreground-colour;
     children:                    [ "textbox-prompt-colon", "entry" ];
 }
@@ -118,7 +129,7 @@ prompt {
 }
 textbox-prompt-colon {
     enabled:                     true;
-    padding:                     8px 0px;
+    padding:                     5px 0px;
     expand:                      false;
     str:                         "";
     background-color:            inherit;
@@ -126,9 +137,9 @@ textbox-prompt-colon {
 }
 entry {
     enabled:                     true;
-    padding:                     8px 0px;
-    background-color:            inherit;
-    text-color:                  inherit;
+    padding:                     5px 0px;
+    background-color:            @alternate-background;
+    text-color:                  @foreground-colour;
     cursor:                      text;
     placeholder:                 "Search...";
     placeholder-color:           inherit;
@@ -162,7 +173,7 @@ case-indicator {
 listview {
     enabled:                     true;
     columns:                     1;
-    lines:                       8;
+    lines:                       6;
     cycle:                       true;
     dynamic:                     true;
     scrollbar:                   false;
@@ -171,18 +182,18 @@ listview {
     fixed-height:                true;
     fixed-columns:               true;
     
-    spacing:                     6px;
+    spacing:                     5px;
     margin:                      0px;
-    padding:                     0px;
-    border:                      0px solid;
-    border-radius:               0px;
+    padding:                     10px;
+    border:                      2px 2px 2px 2px;
+    border-radius:               8px;
     border-color:                @border-colour;
     background-color:            transparent;
     text-color:                  @foreground-colour;
     cursor:                      "default";
 }
 scrollbar {
-    handle-width:                5px ;
+    handle-width:                2px ;
     handle-color:                @handle-colour;
     border-radius:               10px;
     background-color:            @alternate-background;
@@ -193,7 +204,7 @@ element {
     enabled:                     true;
     spacing:                     10px;
     margin:                      0px;
-    padding:                     8px;
+    padding:                     10px;
     border:                      0px solid;
     border-radius:               8px;
     border-color:                @border-colour;
@@ -202,45 +213,46 @@ element {
     cursor:                      pointer;
 }
 element normal.normal {
-    background-color:            var(normal-background);
-    text-color:                  var(normal-foreground);
+    background-color:            transparent;
+    text-color:                  @normal-foreground;
 }
 element normal.urgent {
-    background-color:            var(urgent-background);
-    text-color:                  var(urgent-foreground);
+    background-color:            @urgent-background;
+    text-color:                  @urgent-foreground;
 }
 element normal.active {
-    background-color:            var(active-background);
-    text-color:                  var(active-foreground);
+    background-color:            transparent;
+    text-color:                  @active-foreground;
 }
+
+element-text selected,
 element selected.normal {
-    background-color:            var(selected-normal-background);
-    text-color:                  var(selected-normal-foreground);
+    background-color:            @selected-normal-background;
+    text-color:                  @selected-normal-foreground;
 }
 element selected.urgent {
-    background-color:            var(selected-urgent-background);
-    text-color:                  var(selected-urgent-foreground);
+    background-color:            @selected-urgent-background;
+    text-color:                  @selected-urgent-foreground;
 }
 element selected.active {
-    background-color:            var(selected-active-background);
-    text-color:                  var(selected-active-foreground);
+    background-color:            @selected-active-background;
+    text-color:                  @selected-active-foreground;
 }
 element alternate.normal {
-    background-color:            var(alternate-normal-background);
-    text-color:                  var(alternate-normal-foreground);
+    background-color:            @alternate-normal-background;
+    text-color:                  @alternate-normal-foreground;
 }
 element alternate.urgent {
-    background-color:            var(alternate-urgent-background);
-    text-color:                  var(alternate-urgent-foreground);
+    background-color:            @alternate-urgent-background;
+    text-color:                  @alternate-urgent-foreground;
 }
 element alternate.active {
-    background-color:            var(alternate-active-background);
-    text-color:                  var(alternate-active-foreground);
+    background-color:            @alternate-active-background;
+    text-color:                  @alternate-active-foreground;
 }
 element-icon {
     background-color:            transparent;
     text-color:                  inherit;
-    size:                        24px;
     cursor:                      inherit;
 }
 element-text {
@@ -256,27 +268,33 @@ element-text {
 mode-switcher{
     enabled:                     true;
     expand:                      false;
-    spacing:                     10px;
+    orientation:                 vertical;
+    spacing:                     0px;
     margin:                      0px;
     padding:                     0px;
     border:                      0px solid;
-    border-radius:               0px;
+    border-radius:               8px 0px 0px 8px;
     border-color:                @border-colour;
-    background-color:            transparent;
+    background-color:            @alternate-background;
     text-color:                  @foreground-colour;
 }
 button {
-    padding:                     10px;
-    border:                      0px solid;
+    padding:                     0px 20px 0px 20px;
+    border:                      0px 0px 0px 0px;
     border-radius:               8px;
     border-color:                @border-colour;
-    background-color:            @alternate-background;
+    background-color:            transparent;
     text-color:                  inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
     cursor:                      pointer;
 }
 button selected {
-    background-color:            var(selected-normal-background);
-    text-color:                  var(selected-normal-foreground);
+    border:                      2px 0px 2px 0px;
+    border-radius:               6px;
+    border-color:                @border-colour;
+    background-color:            @selected-normal-foreground;
+    text-color:                  @selected-normal-background;
 }
 
 /*****----- Message -----*****/
@@ -298,7 +316,7 @@ textbox {
     background-color:            @alternate-background;
     text-color:                  @foreground-colour;
     vertical-align:              0.5;
-    horizontal-align:            0.0;
+    horizontal-align:            0.5;
     highlight:                   none;
     placeholder-color:           @foreground-colour;
     blink:                       true;

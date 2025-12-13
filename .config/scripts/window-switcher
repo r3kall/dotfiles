@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+
+# Hyprland + rofi window switcher
+# Requirements: hyprctl, jq, rofi
+
+set -euo pipefail
+
+# Find icon from .desktop files via StartupWMClass or Name
+get_icon_for_class() {
+  local class="$1"
+  local desktop icon
+  local class_lower
+  class_lower=$(printf '%s' "$class" | tr 'A-Z' 'a-z')
+
+  # Search in user and system applications
+  desktop=$(grep -ril --null-data "StartupWMClass=$class" \
+    "$HOME/.local/share/applications" /usr/share/applications 2>/dev/null | head -n1 || true)
+
+  if [[ -z "${desktop:-}" ]]; then
+    # Fallback: try matching Name=
+    desktop=$(grep -ril --null-data "Name=$class" \
+      "$HOME/.local/share/applications" /usr/share/applications 2>/dev/null | head -n1 || true)
+  fi
+
+  if [[ -n "${desktop:-}" ]]; then
+    icon=$(grep -m1 '^Icon=' "$desktop" | cut -d= -f2)
+  fi
+
+  # Fallback to class name itself (icon theme will try to resolve it)
+  printf '%s\n' "${icon:-$class_lower}"
+}
+
+clients_json=$(hyprctl -j clients 2>/dev/null || echo "[]")
+
+# If no clients, bail
+if [[ -z "$clients_json" || "$clients_json" = "[]" ]]; then
+  exit 0
+fi
+
+# Build TSV list:
+# - sort_by(-focusHistoryID) → most recently focused first
+# - fields: addr, focus, title, class, workspace id
+menu_input=$(
+  echo "$clients_json" | jq -r '
+        sort_by(-.focusHistoryID) |
+        map({
+            addr: .address,
+            focus: .focusHistoryID,
+            title: .initialTitle // .title,
+            class: .initialClass // .class,
+            ws: .workspace.id
+        })
+        | .[]
+        | [
+            .addr,
+            (.focus | tostring),
+            (.title // "Untitled"),
+            (.class // "unknown"),
+            (.ws // 0 | tostring)
+          ]
+        | @tsv
+    '
+)
+
+# Feed TSV into rofi, enriching each line with an icon and metadata.
+# We only show "initialTitle (WS:n)" in the UI, but keep addr in the TSV.
+choice_index=$(
+  while IFS=$'\t' read -r addr focus title class ws; do
+    # Get icon for this window class via .desktop files
+    icon=$(get_icon_for_class "$class")
+
+    # What the user sees in rofi:
+    #  - only initialTitle plus workspace hint, no address
+    label="$title (WS:$ws)"
+
+    # Rofi extended format:
+    #  visible-text \0 icon\x1fICONNAME
+    #  (metadata is only for rofi, stdout is just visible-text,
+    #   so we DO NOT try to parse addr back from here)
+    printf '%s\0icon\x1f%s\n' "$label" "$icon"
+  done <<<"$menu_input" | rofi -dmenu \
+    -matching fuzzy \
+    -format 'i' \
+    -p "Window"
+)
+
+# User cancelled
+[[ -z "${choice_index:-}" ]] && exit 0
+
+# choice_index is 0-based; sed is 1-based
+if ! [[ "$choice_index" =~ ^[0-9]+$ ]]; then
+  exit 1
+fi
+
+line_number=$((choice_index + 1))
+
+# Recover the selected line from the original TSV and extract addr (1st field)
+selected_line=$(printf '%s\n' "$menu_input" | sed -n "${line_number}p") || exit 1
+addr=$(printf '%s\n' "$selected_line" | cut -f1)
+
+# Focus the chosen window
+if [[ -n "$addr" ]]; then
+  hyprctl dispatch focuswindow "address:$addr" >/dev/null 2>&1
+fi

@@ -51,7 +51,9 @@ if [[ "$TERM" == (Eterm*|kitty*|alacritty*|aterm*|gnome*|konsole*|kterm*|putty*|
 fi
 
 # Starship prompt.
-eval "$(starship init zsh)"
+if command -v "starship" >/dev/null; then
+  eval "$(starship init zsh)"
+fi
 
 # 3. PLUGINS
 _defer_load() {
@@ -193,6 +195,11 @@ zle -N down-line-or-beginning-search
 
 # 7. MISC
 [ -f "$XDG_CONFIG_HOME/shell/alias" ] && source "$XDG_CONFIG_HOME/shell/alias"
+
+# Start mise
+if command -v "mise" >/dev/null; then
+  eval "$(mise activate zsh)"
+fi
 
 # 0. PROFILING
 if [[ -n "$ZSH_DEBUGRC" ]]; then
