@@ -60,7 +60,7 @@ post_hook = 'pkill -SIGUSR2 waybar'
 # Rofi
 [templates.rofi]
 input_path = '~/.config/matugen/templates/rofi.rasi'
-output_path = '~/.config/rofi/shared/colors.rasi'
+output_path = '~/.config/rofi/shared/colorscheme.rasi'
 
 # Starship
 [templates.starship]

@@ -80,15 +80,6 @@ _defer_load() {
   zstyle :bracketed-paste-magic paste-init pasteinit
   zstyle :bracketed-paste-magic paste-finish pastefinish
 
-  # Lazy-load
-  # NOTE: possible add of yarn or others
-  # if [ -r /usr/share/nvm/init-nvm.sh ]; then
-  #   load_nvm() { source /usr/share/nvm/init-nvm.sh; }
-  #   node() { load_nvm; unfunction node; command node "$@"; }
-  #   npm()  { load_nvm; unfunction npm;  command npm  "$@"; }
-  #   npx()  { load_nvm; unfunction npx;  command npx  "$@"; }
-  # fi
-
   add-zsh-hook -d precmd _defer_load
 }
 add-zsh-hook -Uz precmd _defer_load

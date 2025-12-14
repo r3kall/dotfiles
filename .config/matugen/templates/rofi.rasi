@@ -5,6 +5,9 @@
     primary-fixed-dim: {{colors.primary_fixed_dim.default.hex}};
     on-primary: {{colors.on_primary.default.hex}};
     on-primary-fixed: {{colors.on_primary_fixed.default.hex}};
+    on-primary-fixed-alpha-1: {{colors.on_primary_fixed.default.rgba | set_alpha: 0.8}};
+    on-primary-fixed-alpha-2: {{colors.on_primary_fixed.default.rgba | set_alpha: 0.5}};
+    on-primary-fixed-alpha-3: {{colors.on_primary_fixed.default.rgba | set_alpha: 0.2}};
     on-primary-fixed-variant: {{colors.on_primary_fixed_variant.default.hex}};
     primary-container: {{colors.primary_container.default.hex}};
     on-primary-container: {{colors.on_primary_container.default.hex}};

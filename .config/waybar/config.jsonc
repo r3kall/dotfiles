@@ -1,18 +1,10 @@
-/***
- *    ┓ ┏┏┓┓┏┳┓┏┓┳┓  ┳┓┳┳┳┓┳┓┓ ┏┓┏┓  ┏┓┏┓┳┓┏┓┳┏┓
- *    ┃┃┃┣┫┗┫┣┫┣┫┣┫━━┣┫┃┃┣┫┣┫┃ ┣ ┗┓━━┃ ┃┃┃┃┣ ┃┃┓
- *    ┗┻┛┛┗┗┛┻┛┛┗┛┗  ┻┛┗┛┻┛┻┛┗┛┗┛┗┛  ┗┛┗┛┛┗┻ ┻┗┛
- *                                              
- */
-
- 
  {
 
 	/*----------Global Properties-------------*/
 	"layer": "top",
 	"position": "top",
 	"spacing": 0,
-	"height": 35,
+	"height": 45,
 	"margin-top": 0,
 	"margin-right": 0,
 	"margin-bottom": 0,
@@ -28,14 +20,14 @@
 	],
 	/*----------Modules Center--------------*/
 	"modules-center": [
-		"custom/weather",
+		/*"custom/weather",*/
 		"hyprland/workspaces",
 		"custom/swaync"
 	],
 	/*----------Modules Center--------------*/
 	"modules-right": [
 		"tray",
-		"battery",
+		/*"battery",*/
 		"wireplumber#sink",
 		"wireplumber#source",
 		"network",
@@ -98,7 +90,7 @@
 	/*--------------Pacman--------------------*/
 	"custom/pacman": {
 		"format": "󰅢 {}",
-		"interval": 1800,   
+		"interval": 900,   
 		"exec": "checkupdates | wc -l",
 		"exec-if": "exit 0",
 		"on-click": "foot --title PacUpdate -e zsh -c 'sleep 0.1; paru -Syu --skipreview; echo Done - Press enter to exit; read' 2>/dev/null; pkill -SIGRTMIN+8 waybar",
