@@ -6,6 +6,11 @@ ALIAS_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/shell/alias"
 __has() { command -v "$1" >/dev/null 2>&1; }
 
 # -----------------------------------------------------------------------------
+# DOTFILES (bare repo)
+# -----------------------------------------------------------------------------
+alias dot='/usr/bin/git --git-dir="$HOME/.dotfiles" --work-tree="$HOME"'
+
+# -----------------------------------------------------------------------------
 # CORE / QoL
 # -----------------------------------------------------------------------------
 alias c='clear'
@@ -71,7 +76,7 @@ extract() {
 }
 
 # -----------------------------------------------------------------------------
-# ALIASES NAVIGATION
+# ALIAS NAVIGATION
 # -----------------------------------------------------------------------------
 # Open aliases file in $EDITOR
 alias ea='${EDITOR:-nvim} "$ALIAS_FILE"'
@@ -110,9 +115,9 @@ paci() {
   local aur
   aur="$(__aur)"
   if [ -n "$aur" ]; then
-    "$aur" -S -- "$@"
+    "$aur" -S --needed -- "$@"
   else
-    sudo pacman -S -- "$@"
+    sudo pacman -S --needed -- "$@"
   fi
 }
 pacr() { sudo pacman -R -- "$@"; }
@@ -128,10 +133,6 @@ alias jc='journalctl -xe'
 alias jcu='journalctl --user -xe'
 alias jcf='journalctl -f'
 
-# -----------------------------------------------------------------------------
-# DOTFILES (bare repo)
-# -----------------------------------------------------------------------------
-alias dot='/usr/bin/git --git-dir="$HOME/.dotfiles" --work-tree="$HOME"'
 
 # -----------------------------------------------------------------------------
 # GIT
@@ -160,11 +161,9 @@ alias gl='git log --oneline --decorate --graph -20'
 alias gll='git log --stat -20'
 
 alias gf='git fetch --all --prune'
+alias gg='git pull'
 alias gp='git push'
-alias gpf='git push --force-with-lease'
-alias gpl='git pull --rebase'
 alias gpr='git pull --rebase --autostash'
-alias gpo='git push -u origin HEAD'
 
 gcur() { git rev-parse --abbrev-ref HEAD; }
 groot() { cd -- "$(git rev-parse --show-toplevel)" || return; }
@@ -183,8 +182,7 @@ fi
 # -----------------------------------------------------------------------------
 if __has fd; then
   alias f='fd'
-  alias ff='fd -H'
-  alias fdg='fd .git'
+  alias fh='fd -H'
 fi
 
 # -----------------------------------------------------------------------------
@@ -204,6 +202,10 @@ if __has fzf; then
     --border
     --info=inline
   '
+
+  if __has bat; then
+    alias ff="'fzf --preview 'bat --style=numbers --color=always {}'"
+  fi
 
   # File opener
   fo() {
@@ -233,9 +235,16 @@ fi
 # ZOXIDE
 # -----------------------------------------------------------------------------
 if __has zoxide; then
-  eval "$(zoxide init bash)"
-  alias z='z'
-  zi() { zoxide query -i | xargs -r cd; }
+  alias cd='z'
+  zd() {
+    if [ $# -eq 0 ]; then
+      builtin cd ~ && return
+    elif [ -d "$1" ]; then
+      builtin cd "$1"
+    else
+      z "$@" && printf "\U000F17A9 " && pwd || echo "Error: Directory not found"
+    fi
+  }
 fi
 
 # -----------------------------------------------------------------------------

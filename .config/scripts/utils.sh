@@ -104,7 +104,7 @@ command_req() {
   local cmd="$1"
   if ! command_ex "$cmd"; then
     local msg="Required command '$cmd' was not found in PATH."
-    # notify "Missing Command" "$msg" "critical" || true
+    notify "Missing Command" "$msg" "critical" || true
     log_error "$msg"
     return 1
   fi
@@ -321,4 +321,4 @@ _on_err() {
   notify "Script error" "Error at ${BASH_SOURCE[1]}:${BASH_LINENO[0]} (exit $exit_code)" "critical" || true
   exit "$exit_code"
 }
-#trap _on_err ERR
+trap _on_err ERR

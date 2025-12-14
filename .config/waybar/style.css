@@ -99,7 +99,7 @@ tooltip label {
 }
 
 /*---------------Tray, Clock, Playerctl, Battery, Cpu, Temperature, Colorpicker, Memory, Idle_inhibitor----------------------*/
-#tray, #wireplumber, #network, #bluetooth, #battery, #cpu, #temperature, #custom-colorpicker, #memory, #custom-pacman, #idle_inhibitor,
+#tray, #wireplumber, #network, #bluetooth, #battery, #cpu, #temperature, #custom-theme_switcher, #memory, #custom-pacman, #idle_inhibitor,
 #custom-playerctl.backward, #custom-playerctl.play, #custom-playerctl.foward{
     background: @surface;
     font-weight: bold;
@@ -181,7 +181,7 @@ tooltip label {
 }
 
 /*--------------Cpu, Termperature, Colorpicker, Memory, Idle_inhibitor----------------*/
-#custom-colorpicker, #cpu, #temperature, #memory, #custom-pacman,#idle_inhibitor {
+#custom-theme_switcher, #cpu, #temperature, #memory, #custom-pacman,#idle_inhibitor {
     background: @surface;
     font-size: 16px;
 }
@@ -223,7 +223,7 @@ tooltip label {
     padding-right: 7px;
 }
 
-#custom-colorpicker {
+#custom-theme_switcher {
     color: @tertiary;
     border-radius: 0px 10px 24px 0px;
     padding-right: 12px;

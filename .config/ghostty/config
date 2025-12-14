@@ -2,7 +2,7 @@
 # Appearance
 ########################
 # Theme (run `ghostty +list-themes` to see names)
-theme = "matugen"
+theme = "colors"
 
 window-padding-x = 0
 window-padding-y = 0

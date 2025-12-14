@@ -118,13 +118,10 @@
 		"critical-threshold": 80,
 		"format": ""
 	},
-	"custom/colorpicker": {
-		"format": "{}",
-		"return-type": "json",
-		"interval": "once",
-		"exec": "~/.config/waybar/scripts/Colorpicker.sh -j",
-		"on-click": "~/.config/waybar/scripts/Colorpicker.sh",
-		"signal": 1
+	"custom/theme_switcher": {
+		"format": "󰸉",
+		"on-click": "~/.config/scripts/wallpaper-select",
+    "on-click-right": "~/.config/scripts/wallpaper-random"
 	},
 
 	"idle_inhibitor": {
@@ -158,7 +155,7 @@
 			"temperature",
 			"custom/pacman",
 			"idle_inhibitor",
-			"custom/colorpicker"
+			"custom/theme_switcher"
 		]
 	},
 

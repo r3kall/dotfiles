@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 
-# Current Theme
-dir="$HOME/.config/rofi/themes/"
-theme='powermenu'
-
-# CMDs
-uptime="$(uptime -p | sed -e 's/up //g')"
+THEME="$HOME/.config/rofi/themes/powermenu.rasi"
+UPTIME="$(uptime -p | sed -e 's/up //g')"
 
 # Options
 shutdown=""
@@ -14,15 +10,13 @@ lock=""
 suspend=""
 logout="󰿅"
 
-# Rofi CMD
 rofi_cmd() {
   rofi -dmenu \
     -p "Goodbye ${USER}" \
-    -mesg "Uptime: $uptime" \
-    -theme ${dir}/${theme}.rasi
+    -mesg "Uptime: $UPTIME" \
+    -theme $THEME
 }
 
-# Pass variables to rofi dmenu
 run_rofi() {
   echo -e "$lock\n$suspend\n$logout\n$reboot\n$shutdown" | rofi_cmd
 }
@@ -36,11 +30,13 @@ run_cmd() {
   elif [[ $1 == '--suspend' ]]; then
     systemctl suspend
   elif [[ $1 == '--logout' ]]; then
-    if [[ "$XDG_SESSION_DESKTOP" == 'Hyprland' ]]; then
+    if uwsm check is-active; then
       uswm stop
     else
       loginctl terminate-session
     fi
+  elif [[ $1 == '--lock' ]]; then
+    loginctl lock-session
   fi
 }
 
@@ -54,12 +50,7 @@ $reboot)
   run_cmd --reboot
   ;;
 $lock)
-  if [[ -x '/usr/bin/hyprlock' ]]; then
-    locker "lock"
-    sleep 0.5
-    hyprlock -q
-    locker "unlock"
-  fi
+  run_cmd --lock
   ;;
 $suspend)
   run_cmd --suspend

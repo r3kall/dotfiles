@@ -22,7 +22,7 @@ notify_ephemeral() {
   local body="$2"
 
   if command -v "$NOTIFY_CMD" >/dev/null 2>&1; then
-    "$NOTIFY_CMD" -e -a "Locker" -u low -t 2000 "$summary" "$body"
+    "$NOTIFY_CMD" -e -a "Locker" -u low -t 1500 "$summary" "$body"
   fi
 }
 
@@ -43,7 +43,7 @@ lock)
     else
       notify_ephemeral "Power profile" "Failed to switch to power-saver."
     fi
-    sleep 0.25
+    sleep 1.55
   fi
   ;;
 
@@ -61,7 +61,7 @@ unlock)
       esac
     fi
 
-    sleep 0.25
+    sleep 0.5
     if $PPD_CMD set "$target_profile" 2>/dev/null; then
       notify_ephemeral "Power profile" "Active profile: $target_profile."
     else

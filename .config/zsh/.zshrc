@@ -196,9 +196,12 @@ zle -N down-line-or-beginning-search
 # 7. MISC
 [ -f "$XDG_CONFIG_HOME/shell/alias" ] && source "$XDG_CONFIG_HOME/shell/alias"
 
-# Start mise
 if command -v "mise" >/dev/null; then
   eval "$(mise activate zsh)"
+fi
+
+if command -v "zoxide" >/dev/null; then
+  eval "$(zoxide init zsh)"
 fi
 
 # 0. PROFILING
