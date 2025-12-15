@@ -4,6 +4,7 @@
 source utils.sh
 
 # Variables
+LOG="$HOME/.config/scripts/logs/$(basename $0).log"
 WALLPAPER_DIR="${HOME}/Pictures/wallpapers"
 WALLPAPER_CURR="$HOME/.config/hypr/.current_wallpaper"
 
@@ -17,6 +18,9 @@ SWWW_PARAMS=(--transition-fps "${FPS}"
   --transition-duration "${DURATION}"
   --transition-bezier "${BEZIER}")
 
+mkdir -p "$(dirname "$LOG")"
+exec >"$LOG" 2>&1
+
 FOCUSED_MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
 [[ -z "$FOCUSED_MONITOR" ]] && notify_err_alt "Could not detect focused monitor"
 
@@ -26,6 +30,14 @@ notify_miss_alt "fd"
 notify_miss_alt "swww"
 notify_miss_alt "matugen"
 
+reload() {
+  killall -USR2 zsh
+  sleep 0.5
+  pkill -SIGUSR2 waybar
+  sleep 0.5
+  pkill -SIGUSR2 ghostty
+}
+
 applyImageWallpaper() {
   local img="$1"
   swww img -o "$FOCUSED_MONITOR" "${img}" "${SWWW_PARAMS[@]}"
@@ -33,7 +45,8 @@ applyImageWallpaper() {
   ln -sf $img $WALLPAPER_CURR
   # Animation timer
   sleep $(echo $DURATION + "0.25" | bc)
-  matugen image "$img"
+  matugen -v image "$img"
+  reload
 }
 
 main() {

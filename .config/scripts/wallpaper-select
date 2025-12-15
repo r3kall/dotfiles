@@ -4,6 +4,7 @@
 source utils.sh
 
 # Variables
+LOG="$HOME/.config/scripts/logs/$(basename $0).log"
 WALLPAPER_DIR="${HOME}/Pictures/wallpapers"
 WALLPAPER_CURR="$HOME/.config/hypr/.current_wallpaper"
 ROFI_THEME="${HOME}/.config/rofi/themes/wallpaper-select.rasi"
@@ -17,6 +18,9 @@ SWWW_PARAMS=(--transition-fps "${FPS}"
   --transition-type "${TYPE}"
   --transition-duration "${DURATION}"
   --transition-bezier "${BEZIER}")
+
+mkdir -p "$(dirname "$LOG")"
+exec >"$LOG" 2>&1
 
 # Checks
 notify_miss_alt "bc"
@@ -71,6 +75,14 @@ menu() {
   done
 }
 
+reload() {
+  killall -USR2 zsh
+  sleep 0.5
+  pkill -SIGUSR2 waybar
+  sleep 0.5
+  pkill -SIGUSR2 ghostty
+}
+
 applyImageWallpaper() {
   local img="$1"
   swww img -o "$FOCUSED_MONITOR" "${img}" "${SWWW_PARAMS[@]}"
@@ -78,7 +90,8 @@ applyImageWallpaper() {
   ln -sf $img $WALLPAPER_CURR
   # Animation timer
   sleep $(echo $DURATION + "0.25" | bc)
-  matugen image "$img"
+  matugen -v image "$img"
+  reload
 }
 
 main() {

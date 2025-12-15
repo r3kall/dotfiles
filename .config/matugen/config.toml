@@ -13,7 +13,7 @@ version_check = false
 [templates.vivid]
 input_path = "~/.config/matugen/templates/vivid.yml"
 output_path = "~/.config/vivid/themes/matugen.yml"
-post_hook = 'killall -USR2 zsh'
+#post_hook = 'killall -USR2 zsh || true'
 
 # Hyprland
 [templates.hyprland]
@@ -44,7 +44,7 @@ output_path = '~/.config/qt6ct/colors.conf'
 [templates.ghostty]
 input_path = '~/.config/matugen/templates/ghostty'
 output_path = '~/.config/ghostty/themes/colors'
-post_hook = 'pkill -SIGUSR2 ghostty'
+#post_hook = 'pkill -SIGUSR2 ghostty || true'
 
 # Foot terminal
 [templates.foot]
@@ -55,13 +55,13 @@ output_path = '~/.config/foot/colors.ini'
 [templates.swaync]
 input_path = '~/.config/matugen/templates/swaync.css'
 output_path = '~/.config/swaync/themes/colors.css'
-post_hook = 'swaync-client -rs'
+post_hook = 'swaync-client -rs || true'
 
 # Waybar
 [templates.waybar]
 input_path = '~/.config/matugen/templates/waybar.css'
 output_path = '~/.config/waybar/colors.css'
-post_hook = 'pkill -SIGUSR2 waybar'
+#post_hook = 'pkill -SIGUSR2 waybar || true'
 
 # Rofi
 [templates.rofi]
