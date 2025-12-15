@@ -5,15 +5,15 @@ add_newline = false
 palette = 'colors'
 
 [palettes.colors]
-color1 = '#bcc3ff'
-color2 = '#242b61'
-color3 = '#c7c5d0'
-color4 = '#1f1f25'
-color5 = '#242b61'
-color6 = '#131318'
-color7 = '#131318'
-color8 = '#bcc3ff'
-color9 = '#e6bad7'
+color1 = '#ffb59a'
+color2 = '#552009'
+color3 = '#d8c2bb'
+color4 = '#271e1a'
+color5 = '#552009'
+color6 = '#1a110e'
+color7 = '#1a110e'
+color8 = '#ffb59a'
+color9 = '#d4c78e'
 
 # Prompt symbols 
 [character]

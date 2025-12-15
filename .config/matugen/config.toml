@@ -9,6 +9,12 @@ version_check = false
 
 # templates
 
+# Vivid
+[templates.vivid]
+input_path = "~/.config/matugen/templates/vivid.yml"
+output_path = "~/.config/vivid/themes/matugen.yml"
+post_hook = 'killall -USR2 zsh'
+
 # Hyprland
 [templates.hyprland]
 input_path = '~/.config/matugen/templates/hyprland.conf'
