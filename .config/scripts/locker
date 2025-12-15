@@ -77,3 +77,7 @@ unlock)
   exit 1
   ;;
 esac
+
+# Fix to waybar duplicate bars issue
+# TODO: find a better solution
+pkill -SIGUSR2 waybar
