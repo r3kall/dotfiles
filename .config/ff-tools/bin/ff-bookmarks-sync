@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ff-bookmarks-sync
+# Export latest Firefox bookmarks backup -> JSON, then sync exports to rclone remotes.
+
+# shellcheck disable=SC1091
+source "${FF_TOOLS_LIB:-$HOME/.config/ff-tools/lib/ff-tools.sh}"
+
+FF_DEBUG=0
+FF_TOOLS_DIR="${FF_TOOLS_DIR:-$HOME/.config/ff-tools}"
+EXPORT_DIR="$FF_TOOLS_DIR/exports"
+
+PROFILE="${FF_PROFILE:-}"
+REMOTE_GDRIVE="${FF_GDRIVE_REMOTE:-gdrive:Backups/firefox-bookmarks}"
+REMOTE_MEGA="${FF_MEGA_REMOTE:-mega:Backups/firefox-bookmarks}"
+DO_EXPORT=1
+
+usage() {
+  cat <<'EOF'
+Usage:
+  ff-bookmarks-sync --profile PATH [options]
+
+Options:
+  -p, --profile PATH     Firefox profile dir (or set FF_PROFILE)
+  --no-export            Skip export step; only sync existing files
+  --gdrive DEST          rclone destination for Google Drive (default: gdrive:Backups/firefox-bookmarks)
+  --mega DEST            rclone destination for MEGA (default: mega:Backups/firefox-bookmarks)
+  --debug                Verbose logs to stderr
+  -h, --help
+
+Env:
+  FF_PROFILE             Firefox profile dir
+  FF_GDRIVE_REMOTE       Override default gdrive destination
+  FF_MEGA_REMOTE         Override default mega destination
+  FF_TOOLS_DIR           Base config dir (default: ~/.config/ff-tools)
+  FF_TOOLS_LIB           Path to ff-tools.sh (default: ~/.config/ff-tools/lib/ff-tools.sh)
+
+Notes:
+  - Requires rclone remotes to exist.
+  - Sync uses rclone sync with --checksum.
+EOF
+}
+
+# --- args ---
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -p|--profile) PROFILE="${2:-}"; shift 2;;
+    --no-export) DO_EXPORT=0; shift;;
+    --gdrive) REMOTE_GDRIVE="${2:-}"; shift 2;;
+    --mega) REMOTE_MEGA="${2:-}"; shift 2;;
+    --debug) FF_DEBUG=1; shift;;
+    -h|--help) usage; exit 0;;
+    *) ff_die "unknown argument: $1";;
+  esac
+done
+
+ff_need_cmd rclone
+
+if [[ "$DO_EXPORT" -eq 1 ]]; then
+  ff_need_cmd ff-bookmarks-export
+  [[ -n "$PROFILE" ]] || ff_die "PROFILE not set (use --profile or FF_PROFILE)"
+  ff_log "exporting bookmarks from profile: $PROFILE"
+  ff-bookmarks-export --profile "$PROFILE" >/dev/null
+fi
+
+# Ensure export dir exists (export script should create it, but keep this safe)
+mkdir -p "$EXPORT_DIR"
+
+# Validate rclone remotes exist (by prefix before ':')
+remote_name() {
+  local s="$1"
+  printf '%s\n' "${s%%:*}"
+}
+
+require_remote() {
+  local dest="$1"
+  local name
+  name="$(remote_name "$dest")"
+  [[ -n "$name" && "$name" != "$dest" ]] || ff_die "invalid rclone destination (missing ':'): $dest"
+
+  if ! rclone listremotes | grep -qx "${name}:"; then
+    ff_die "missing rclone remote '${name}:' (run: rclone config)"
+  fi
+}
+
+require_remote "$REMOTE_GDRIVE"
+require_remote "$REMOTE_MEGA"
+
+ff_log "syncing exports:"
+ff_log "  src   : $EXPORT_DIR"
+ff_log "  gdrive: $REMOTE_GDRIVE"
+ff_log "  mega  : $REMOTE_MEGA"
+
+# Sync
+rclone sync "$EXPORT_DIR" "$REMOTE_GDRIVE" --checksum --create-empty-src-dirs
+rclone sync "$EXPORT_DIR" "$REMOTE_MEGA"   --checksum --create-empty-src-dirs
+
+ff_log "done"

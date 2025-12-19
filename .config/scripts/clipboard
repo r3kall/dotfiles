@@ -1,63 +1,40 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
-ROFI_BIN="${ROFI_BIN:-rofi}"
-PROMPT="${PROMPT:-clipboard}"
-KB_CUSTOM_PASTE="${KB_CUSTOM_PASTE:-Alt-Return}"      # paste selected entry
-KB_CUSTOM_DELETE="${KB_CUSTOM_DELETE:-Alt-BackSpace}" # delete selected entry
-KB_CUSTOM_WIPE="${KB_CUSTOM_WIPE:-Alt-w}"             # wipe history
+ROFI_CONFIG="$HOME/.config/rofi/themes/clipboard.rasi"
+ROFI_CMD=(rofi -dmenu -i -p "Clipboard"
+  -kb-custom-1 "Control+Delete"
+  -kb-custom-2 "ALT-Delete"
+  -config "$ROFI_CONFIG")
 
-# Show history (ID\tPreview). We hide the ID column in rofi, but keep it in the line
-# so cliphist can decode the exact original bytes.
-SELECTION="$(
-  cliphist list | "$ROFI_BIN" -normal-window -dmenu -i -p "$PROMPT" \
-      -display-columns 2 \
-      -kb-custom-1 "$KB_CUSTOM_PASTE" \
-      -kb-custom-2 "$KB_CUSTOM_DELETE" \
-      -kb-custom-3 "$KB_CUSTOM_WIPE"
-)"
-ret=$?
+# Check if rofi is already running
+if pidof rofi >/dev/null; then
+  pkill rofi
+fi
 
-# Nothing chosen
-[ -z "${SELECTION}" ] && exit 0
+while true; do
+  sel=$(clipvault list | "${ROFI_CMD[@]}")
+  rc=$?
 
-# The first TAB-separated field is the cliphist ID
-id="${SELECTION%%	*}"
-
-copy_entry() {
-  # Copy exact bytes to clipboard; also try PRIMARY for middle-click paste
-  if ! cliphist decode "$id" | wl-copy; then
-    notify-send "rofi-clipboard" "Failed to copy selection." || true
-    exit 1
-  fi
-  cliphist decode "$id" | wl-copy --primary >/dev/null 2>&1 || true
-}
-
-paste_active() {
-  copy_entry
-  # Prefer Hyprland (sendshortcut), fallback to wtype
-  if command -v hyprctl >/dev/null 2>&1; then
-    hyprctl dispatch sendshortcut ctrl+v >/dev/null 2>&1 || true
-  elif command -v wtype >/dev/null 2>&1; then
-    wtype -k ctrl+v >/dev/null 2>&1 || true
-  else
-    notify-send "rofi-clipboard" "Copied. (Install hyprctl or wtype for auto-paste.)" || true
-  fi
-}
-
-case "$ret" in
-  0)  # Enter: copy
-      copy_entry
+  case "$rc" in
+  1)
+    exit 0
+    ;;
+  0)
+    case "$sel" in
+    "")
+      exit 0
       ;;
-  10) # Alt+Enter: paste into active window
-      paste_active
+    *)
+      clipvault get <<<"$sel" | wl-copy
+      exit 0
       ;;
-  11) # Alt+Backspace: delete this entry from history
-      cliphist delete "$id"
-      ;;
-  12) # Alt+W: wipe whole history
-      cliphist wipe
-      ;;
-  *)  # Esc or unknown
-      ;;
-esac
+    esac
+    ;;
+  10)
+    clipvault delete <<<"$sel"
+    ;;
+  11)
+    clipvault clear
+    ;;
+  esac
+done
