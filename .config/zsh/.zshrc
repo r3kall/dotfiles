@@ -185,16 +185,15 @@ zle -N down-line-or-beginning-search
 [[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" down-line-or-beginning-search
 
 # 7. MISC
-[ -f "$XDG_CONFIG_HOME/shell/alias" ] && source "$XDG_CONFIG_HOME/shell/alias"
-[ -f "$XDG_CONFIG_HOME/vivid/themes/matugen.yml" ] && export LS_COLORS="$(vivid generate $XDG_CONFIG_HOME/vivid/themes/matugen.yml)"
-
 if command -v "mise" >/dev/null; then
   eval "$(mise activate zsh)"
 fi
-
 if command -v "zoxide" >/dev/null; then
   eval "$(zoxide init zsh)"
 fi
+
+[ -f "$XDG_CONFIG_HOME/shell/alias" ] && source "$XDG_CONFIG_HOME/shell/alias"
+[ -f "$XDG_CONFIG_HOME/vivid/themes/matugen.yml" ] && export LS_COLORS="$(vivid generate $XDG_CONFIG_HOME/vivid/themes/matugen.yml)"
 
 TRAPUSR2() {
   [ -f "$XDG_CONFIG_HOME/vivid/themes/matugen.yml" ] && export LS_COLORS="$(vivid generate $XDG_CONFIG_HOME/vivid/themes/matugen.yml)"
