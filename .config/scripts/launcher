@@ -6,6 +6,6 @@ LC_ALL=C
 
 # --- Config ------------------------------------------------------------------
 ROFI_BIN="${ROFI_BIN:-rofi}"
-ROFI_ARGS="${ROFI_ARGS:--show drun}"
+ROFI_ARGS="${ROFI_ARGS:--show drun -config $HOME/.config/rofi/themes/dmenu-launcher.rasi}"
 
 $ROFI_BIN $ROFI_ARGS

@@ -1,0 +1,11 @@
+[tools]
+python = "latest"
+uv = "latest"
+pipx = "latest"
+go = "latest"
+rust = "latest"
+opentofu = "latest"
+terragrunt = "latest"
+terraform = "latest"
+ansible = "latest"
+node = "22"
