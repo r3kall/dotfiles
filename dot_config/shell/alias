@@ -6,9 +6,26 @@ ALIAS_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/shell/alias"
 __has() { command -v "$1" >/dev/null 2>&1; }
 
 # -----------------------------------------------------------------------------
-# DOTFILES (bare repo)
+# DOTFILES (chezmoi)
 # -----------------------------------------------------------------------------
-alias dot='/usr/bin/git --git-dir="$HOME/.dotfiles" --work-tree="$HOME"'
+#alias dot='/usr/bin/git --git-dir="$HOME/.dotfiles" --work-tree="$HOME"'
+
+alias dot='chezmoi'
+alias dota='chezmoi add'
+alias dotr='chezmoi re-add'
+alias dotf='chezmoi forget'
+alias dote='chezmoi edit --apply'
+alias dotd='chezmoi diff'
+alias dots='chezmoi status'
+alias dotapply='chezmoi apply'
+alias dotpreview='chezmoi apply --dry-run --verbose'
+
+alias dotgit='chezmoi git --'
+alias dotgs='chezmoi git -- status --short'
+alias dotgd='chezmoi git -- diff'
+alias dotstage='chezmoi git -- add -A'
+alias dotcommit='chezmoi git -- commit -m'
+alias dotpush='chezmoi git -- push'
 
 # -----------------------------------------------------------------------------
 # CORE / QoL
@@ -79,7 +96,7 @@ extract() {
 # ALIAS NAVIGATION
 # -----------------------------------------------------------------------------
 # Open aliases file in $EDITOR
-alias ea='${EDITOR:-nvim} "$ALIAS_FILE"'
+alias ea='chezmoi edit --apply "$ALIAS_FILE"'
 
 # Fuzzy-search aliases (fzf if available, fallback to less)
 fa() {
