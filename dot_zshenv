@@ -1,0 +1,18 @@
+# env vars to set on login, zsh settings in ~/config/zsh/.zshrc
+source $HOME/.config/shell/env
+
+# bootstrap .zshrc to ~/.config/zsh/.zshrc, any other zsh config files can also reside here
+export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
+export STARSHIP_CACHE="$XDG_CACHE_HOME/starship.cache"
+export STARSHIP_LOG="$XDG_CACHE_HOME/starship.log"
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+export HSA_OVERRIDE_GFX_VERSION=11.5.0
+
+# path export
+typeset -U path PATH
+path=(~/.local/bin $XDG_CONFIG_HOME/scripts /opt/rocm/bin $path)
+export PATH
+
+if command -v mise >/dev/null; then
+  eval "$(mise activate zsh)"
+fi

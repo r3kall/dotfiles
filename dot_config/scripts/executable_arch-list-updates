@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+section() { printf '\n== %s ==\n' "$*"; }
+warn() { printf 'WARNING: %s\n' "$*" >&2; }
+die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
+count_lines() { sed '/^[[:space:]]*$/d' "$1" | wc -l; }
+
+OFFICIAL_FILE="$(mktemp)"
+AUR_FILE="$(mktemp)"
+trap 'rm -f "$OFFICIAL_FILE" "$AUR_FILE"' EXIT
+
+command -v pacman >/dev/null 2>&1 || die "pacman was not found."
+
+section "Official repository updates"
+if command -v checkupdates >/dev/null 2>&1; then
+    set +e
+    checkupdates --nocolor >"$OFFICIAL_FILE"
+    rc=$?
+    set -e
+
+    if [[ "$rc" -eq 0 ]]; then
+        cat "$OFFICIAL_FILE"
+    elif [[ "$rc" -eq 2 ]]; then
+        printf 'No official repository updates found.\n'
+    else
+        warn "checkupdates failed with exit code $rc."
+    fi
+else
+    warn "checkupdates is missing. Install pacman-contrib to safely check official updates."
+fi
+
+section "AUR updates"
+AUR_HELPER=""
+if command -v paru >/dev/null 2>&1; then
+    AUR_HELPER="paru"
+elif command -v yay >/dev/null 2>&1; then
+    AUR_HELPER="yay"
+fi
+
+if [[ -n "$AUR_HELPER" ]]; then
+    AUR_ARGS=(-Qua --color never)
+
+    # Set CHECK_DEVEL=1 to also check -git/-svn/-hg development packages.
+    if [[ "${CHECK_DEVEL:-0}" == "1" ]]; then
+        AUR_ARGS+=(--devel)
+    fi
+
+    set +e
+    "$AUR_HELPER" "${AUR_ARGS[@]}" >"$AUR_FILE"
+    rc=$?
+    set -e
+
+    if [[ "$rc" -eq 0 && -s "$AUR_FILE" ]]; then
+        cat "$AUR_FILE"
+    elif [[ "$rc" -eq 0 ]]; then
+        printf 'No AUR updates found.\n'
+    else
+        warn "$AUR_HELPER failed with exit code $rc while checking AUR updates."
+    fi
+else
+    warn "No supported AUR helper found. Install paru or yay to check AUR updates."
+    printf 'Installed foreign packages, not necessarily AUR packages:\n'
+    pacman -Qqm || true
+fi
+
+section "Summary"
+printf 'Official updates: %s\n' "$(count_lines "$OFFICIAL_FILE")"
+printf 'AUR updates: %s\n' "$(count_lines "$AUR_FILE")"
+printf '\nNo packages were upgraded.\n'

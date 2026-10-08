@@ -1,0 +1,11 @@
+[Unit]
+Description=Start awww for Hyprland
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/awww-daemon
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Actions: Enter (select) / custom keys (delete/clear)
+# We rely on:
+#  - ROFI_RETV (0 init, 1 selected, 10+ custom keys)  :contentReference[oaicite:3]{index=3}
+#  - the selected line passed as $1 (we keep the full "clipvault list" line)
+
+msg=$'Enter: copy   Alt+D: delete entry   Alt+Shift+C: clear all'
+thumb_prefix="thumbnail://clipvault:"
+
+list_entries() {
+  # prompt/message + enable hotkeys in script mode
+  printf '\0prompt\x1fClipboard\n'
+  printf '\0message\x1f%s\n' "$msg"
+  printf '\0use-hot-keys\x1ftrue\n'
+  printf '\0markup-rows\x1ffalse\n'
+
+  # "Clear all" command entry pinned on top
+  printf '🗑  Clear ALL history\0info\x1f__CLEAR_ALL__\0permanent\x1ftrue\0urgent\x1ftrue\n'
+
+  # Real entries (keep FULL line as the "row id", but display only column 2)
+  # clipvault list is tab-separated: "<id>\t<preview...>"  :contentReference[oaicite:4]{index=4}
+  clipvault list | while IFS=$'\t' read -r id preview_rest; do
+    # Fallback if parsing fails
+    preview="${preview_rest:-$id}"
+
+    # We set an icon name like "thumbnail://clipvault:<id>" for rofi thumbnails. :contentReference[oaicite:5]{index=5}
+    # Rofi will call -preview-cmd to generate the thumbnail file.
+    printf '%s\t%s\0display\x1f%s\0icon\x1f%s%s\0info\x1f%s\n' \
+      "$id" "$preview" "$preview" "$thumb_prefix" "$id" "$id"
+  done
+}
+
+do_copy() {
+  local line="$1"
+  # Avoid copying if nothing selected
+  [ -n "${line:-}" ] || exit 0
+  clipvault get <<<"$line" | wl-copy
+}
+
+do_delete() {
+  local line="$1"
+  [ -n "${line:-}" ] || exit 0
+  clipvault delete <<<"$line"
+}
+
+do_clear_all() {
+  clipvault clear
+}
+
+retv="${ROFI_RETV:-0}"
+sel="${1:-}"
+info="${ROFI_INFO:-}"
+
+case "$retv" in
+  0)
+    list_entries
+    ;;
+  1)
+    # Enter pressed
+    if [ "$info" = "__CLEAR_ALL__" ]; then
+      do_clear_all
+      exit 0
+    fi
+    do_copy "$sel"
+    ;;
+  10)
+    # Custom key 1: delete selected
+    if [ "$info" = "__CLEAR_ALL__" ]; then
+      do_clear_all
+      exit 0
+    fi
+    do_delete "$sel"
+    ;;
+  11)
+    # Custom key 2: clear all
+    do_clear_all
+    ;;
+  *)
+    exit 0
+    ;;
+esac

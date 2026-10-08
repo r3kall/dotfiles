@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+ROFI_CONFIG="$HOME/.config/rofi/themes/clipboard.rasi"
+ROFI_CMD=(rofi -dmenu -i -p "Clipboard"
+  -kb-custom-1 "Control+Delete"
+  -kb-custom-2 "ALT-Delete"
+  -config "$ROFI_CONFIG")
+
+# Check if rofi is already running
+if pidof rofi >/dev/null; then
+  pkill rofi
+fi
+
+while true; do
+  sel=$(clipvault list | "${ROFI_CMD[@]}")
+  rc=$?
+
+  case "$rc" in
+  1)
+    exit 0
+    ;;
+  0)
+    case "$sel" in
+    "")
+      exit 0
+      ;;
+    *)
+      clipvault get <<<"$sel" | wl-copy
+      exit 0
+      ;;
+    esac
+    ;;
+  10)
+    clipvault delete <<<"$sel"
+    ;;
+  11)
+    clipvault clear
+    ;;
+  esac
+done

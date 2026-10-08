@@ -1,0 +1,81 @@
+{
+  "$schema": "/etc/xdg/swaync/configSchema.json",
+
+  "positionX": "right",
+  "positionY": "top",
+  "cssPriority": "user",
+
+  "control-center-positionX": "center",
+  "control-center-positionY": "top",
+  "control-center-width": 390,
+  "control-center-height": 640, 
+  "control-center-margin-top": 12,
+  "control-center-margin-bottom": 12,
+  "control-center-margin-right": 12,
+  "control-center-margin-left": 12,
+
+  "notification-window-width": 400,
+  "notification-icon-size": 48,
+  "notification-body-image-height": 160,
+  "notification-body-image-width": 200,
+
+  "timeout": 8,
+  "timeout-low": 6,
+  "timeout-critical": 60,
+  
+  "fit-to-screen": true,
+  "keyboard-shortcuts": true,
+  "image-visibility": "when-available",
+  "transition-time": 120,
+  "hide-on-clear": true,
+  "hide-on-action": true,
+  "script-fail-notify": true,
+
+  "scripts": {},
+  "notification-visibility": {
+    "low-priority-transient": {
+      "state": "transient",
+      "urgency": "Low"
+    }
+  },
+
+  "widgets": [
+    "title",
+    "dnd",
+    "buttons-grid",
+    "volume",
+    "notifications"
+  ],
+
+  "widget-config": {
+    "title": {
+      "text": "Notifications",
+      "clear-all-button": true,
+      "button-text": " 󰎟 "
+    },
+    "dnd": {
+      "text": "Do not disturb"
+    },
+    "volume": {
+      "label": "󰕾 ",
+      "show-per-app": false
+    },
+    "buttons-grid": {
+      "buttons-per-row": 3,
+      "actions": [
+        {
+          "label":"󰐥",
+          "command": "sh -c 'swaync-client -t -sw; powermenu'"
+        },
+        {
+          "label": "󰖩",
+          "command": "sh -c 'swaync-client -cp; foot --app-id=impala --title=Impala impala'"
+        },
+        {
+          "label": "󰂯",
+          "command": "sh -c 'swaync-client -cp; foot --app-id=bluetui --title=Bluetui bluetui'"
+        }
+      ]
+    }
+  }
+}

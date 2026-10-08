@@ -1,0 +1,186 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+section() { printf '\n== %s ==\n' "$*"; }
+warn() { printf 'WARNING: %s\n' "$*" >&2; }
+die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
+need() { command -v "$1" >/dev/null 2>&1 || die "Missing dependency: $1"; }
+urlencode() { jq -nr --arg v "$1" '$v|@uri'; }
+
+need pacman
+need curl
+need jq
+need git
+
+CACHE_DIR="${CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/aur-security-audit}"
+PKGBUILD_DIR="$CACHE_DIR/pkgbuilds"
+mkdir -p "$PKGBUILD_DIR"
+
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "$TMP_DIR"' EXIT
+
+FOREIGN_FILE="$TMP_DIR/foreign.txt"
+AUR_TSV="$TMP_DIR/aur.tsv"
+AUR_NAMES="$TMP_DIR/aur-names.txt"
+NON_AUR_FILE="$TMP_DIR/non-aur.txt"
+ARCH_AUDIT_TSV="$TMP_DIR/arch-audit.tsv"
+ARCH_AUDIT_MATCHES="$TMP_DIR/arch-audit-matches.tsv"
+OSV_SUMMARY="$TMP_DIR/osv-summary.txt"
+RISK_FINDINGS="$TMP_DIR/risk-findings.txt"
+
+: >"$AUR_TSV"
+: >"$OSV_SUMMARY"
+: >"$RISK_FINDINGS"
+
+section "Installed foreign packages"
+pacman -Qqm | sort -u >"$FOREIGN_FILE" || true
+if [[ ! -s "$FOREIGN_FILE" ]]; then
+    printf 'No foreign packages found.\n'
+    exit 0
+fi
+cat "$FOREIGN_FILE"
+
+section "AUR metadata"
+mapfile -t FOREIGN <"$FOREIGN_FILE"
+BATCH_SIZE="${AUR_RPC_BATCH_SIZE:-50}"
+
+for ((i=0; i<${#FOREIGN[@]}; i+=BATCH_SIZE)); do
+    url='https://aur.archlinux.org/rpc/?v=5&type=info'
+
+    for ((j=i; j<i+BATCH_SIZE && j<${#FOREIGN[@]}; j++)); do
+        url+="&arg[]=$(urlencode "${FOREIGN[$j]}")"
+    done
+
+    curl -fsS "$url" \
+        | jq -r '.results[] | [.Name, .PackageBase, .Version, (.OutOfDate // 0 | tostring), (.Maintainer // "orphan"), (.URL // "")] | @tsv' \
+        >>"$AUR_TSV" \
+        || warn "AUR RPC request failed for one batch."
+done
+
+if [[ ! -s "$AUR_TSV" ]]; then
+    warn "No installed foreign packages were found in the AUR RPC results."
+    exit 0
+fi
+
+cut -f1 "$AUR_TSV" | sort -u >"$AUR_NAMES"
+comm -23 "$FOREIGN_FILE" "$AUR_NAMES" >"$NON_AUR_FILE" || true
+
+printf 'Name\tInstalled\tAUR Version\tStatus\tMaintainer\tUpstream URL\n'
+while IFS=$'\t' read -r name base aur_version out_of_date maintainer upstream_url; do
+    installed_version="$(pacman -Q "$name" 2>/dev/null | cut -d' ' -f2-)"
+
+    if [[ "$out_of_date" != "0" ]]; then
+        status="flagged-out-of-date"
+    elif [[ "$maintainer" == "orphan" ]]; then
+        status="orphaned"
+    else
+        status="ok"
+    fi
+
+    printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
+        "$name" "$installed_version" "$aur_version" "$status" "$maintainer" "$upstream_url"
+done <"$AUR_TSV" | column -t -s $'\t'
+
+if [[ -s "$NON_AUR_FILE" ]]; then
+    section "Foreign packages not found in AUR"
+    cat "$NON_AUR_FILE"
+fi
+
+section "Fetching AUR PKGBUILD repositories"
+while IFS=$'\t' read -r name base aur_version out_of_date maintainer upstream_url; do
+    dest="$PKGBUILD_DIR/$base"
+
+    if [[ -d "$dest/.git" ]]; then
+        git -C "$dest" pull --ff-only --quiet || warn "Could not update $base PKGBUILD repository."
+    else
+        rm -rf "$dest"
+        git clone --depth 1 --quiet "https://aur.archlinux.org/${base}.git" "$dest" || warn "Could not clone $base PKGBUILD repository."
+    fi
+
+    printf 'Fetched: %s\n' "$base"
+done <"$AUR_TSV"
+
+section "arch-audit CVE check"
+if command -v arch-audit >/dev/null 2>&1; then
+    set +e
+    arch-audit -f '%n\t%s\t%c\t%v' >"$ARCH_AUDIT_TSV"
+    rc=$?
+    set -e
+
+    if [[ "$rc" -ne 0 && ! -s "$ARCH_AUDIT_TSV" ]]; then
+        warn "arch-audit failed with exit code $rc."
+    else
+        awk 'NR==FNR {aur[$1]=1; next} ($1 in aur)' \
+            "$AUR_NAMES" "$ARCH_AUDIT_TSV" >"$ARCH_AUDIT_MATCHES"
+
+        if [[ -s "$ARCH_AUDIT_MATCHES" ]]; then
+            printf 'Potential CVE matches for installed AUR package names:\n'
+            while IFS=$'\t' read -r pkg severity cves fixed_version; do
+                printf -- '- %s | severity=%s | cves=%s | fixed=%s\n' \
+                    "$pkg" "${severity:-unknown}" "${cves:-unknown}" "${fixed_version:-unknown}"
+            done <"$ARCH_AUDIT_MATCHES"
+        else
+            printf 'No arch-audit matches for installed AUR package names.\n'
+        fi
+    fi
+else
+    warn "arch-audit is not installed. Skipping Arch security tracker matching."
+fi
+
+section "OSV scan of AUR packaging repositories"
+if command -v osv-scanner >/dev/null 2>&1; then
+    scanned=0
+    max_packages="${MAX_OSV_PACKAGES:-0}"
+
+    while IFS=$'\t' read -r name base aur_version out_of_date maintainer upstream_url; do
+        if [[ "$max_packages" != "0" && "$scanned" -ge "$max_packages" ]]; then
+            warn "Reached MAX_OSV_PACKAGES=$max_packages."
+            break
+        fi
+
+        dest="$PKGBUILD_DIR/$base"
+        [[ -d "$dest" ]] || continue
+
+        out="$TMP_DIR/osv-$base.txt"
+
+        set +e
+        if osv-scanner scan source -r "$dest" >"$out" 2>&1; then
+            rc=0
+        else
+            rc=$?
+        fi
+        set -e
+
+        if [[ "$rc" -eq 0 ]]; then
+            printf '%s: no OSV findings in packaging repository\n' "$base" | tee -a "$OSV_SUMMARY"
+        else
+            printf '%s: OSV scanner returned findings or an error; review %s\n' "$base" "$out" | tee -a "$OSV_SUMMARY"
+            sed -n '1,80p' "$out"
+        fi
+
+        scanned=$((scanned + 1))
+    done <"$AUR_TSV"
+else
+    warn "osv-scanner is not installed. Skipping OSV source scan."
+fi
+
+section "PKGBUILD risk pattern scan"
+while IFS=$'\t' read -r name base aur_version out_of_date maintainer upstream_url; do
+    dest="$PKGBUILD_DIR/$base"
+    [[ -d "$dest" ]] || continue
+
+    grep -RInE '(curl|wget).*(\||bash|sh)|sudo\b|chmod[[:space:]]+.*777|chown[[:space:]]+.*root|eval\b|base64[[:space:]].*(-d|--decode)|/etc/sudoers|systemctl[[:space:]]+enable|setcap\b' \
+        "$dest"/PKGBUILD "$dest"/*.install 2>/dev/null \
+        | sed "s#^#${base}: #" >>"$RISK_FINDINGS" || true
+done <"$AUR_TSV"
+
+if [[ -s "$RISK_FINDINGS" ]]; then
+    printf 'Potentially risky packaging patterns found. Review manually; false positives are possible.\n'
+    cat "$RISK_FINDINGS"
+else
+    printf 'No obvious risky PKGBUILD patterns found.\n'
+fi
+
+section "Notes"
+printf 'AUR vulnerability checks are best-effort only. Review PKGBUILD files and upstream project advisories for important packages.\n'
+printf 'Cached PKGBUILD repositories: %s\n' "$PKGBUILD_DIR"

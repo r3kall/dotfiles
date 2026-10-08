@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+config="$HOME/.codex/config.toml"
+root="$HOME/WS"
+
+start="# BEGIN GENERATED CODEX TRUSTED PROJECTS"
+end="# END GENERATED CODEX TRUSTED PROJECTS"
+
+tmp="$(mktemp)"
+touch "$config"
+
+# Remove the old generated section, if present.
+awk -v start="$start" -v end="$end" '
+  $0 == start { skip = 1; next }
+  $0 == end { skip = 0; next }
+  !skip { print }
+' "$config" >"$tmp"
+
+# Append the regenerated section.
+{
+  printf '%s\n' "$start"
+
+  fd '^\.git$' "$root" --type d --hidden --no-ignore --prune |
+    sort |
+    while read -r gitdir; do
+      repo="$(realpath "$(dirname "$gitdir")")"
+
+      printf '\n[projects."%s"]\ntrust_level = "trusted"\n' "$repo"
+    done
+
+  printf '\n%s\n' "$end"
+} >>"$tmp"
+
+mv "$tmp" "$config"

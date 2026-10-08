@@ -1,0 +1,9 @@
+[Unit]
+Description=Add SSH keys
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ssh-add /home/arch/.ssh/github /home/arch/.ssh/github-brightstar
+
+[Install]
+WantedBy=default.target

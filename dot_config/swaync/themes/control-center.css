@@ -1,0 +1,248 @@
+@define-color text @on_surface;
+@define-color text-muted @on_surface_variant;
+@define-color panel @surface;
+@define-color card @surface_container;
+@define-color card-hover @surface_container_high;
+@define-color card-active @surface_container_highest;
+@define-color border @outline_variant;
+@define-color accent @primary;
+@define-color accent-soft alpha(@primary, 0.22);
+@define-color urgent @error;
+
+* {
+  all: unset;
+  font-family: "GeistMono Nerd Font", "Noto Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: @text;
+  transition: 150ms ease;
+}
+
+.blank-window {
+  background: transparent;
+}
+
+.control-center {
+  background: alpha(@panel, 0.94);
+  border: 1px solid alpha(@border, 0.85);
+  border-radius: 24px;
+  margin: 12px;
+  padding: 14px;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.45);
+}
+
+/* Notification cards inside control center */
+.control-center .notification-row .notification-background .notification {
+  background: alpha(@card, 0.96);
+  border: 1px solid alpha(@border, 0.75);
+  border-radius: 18px;
+  margin: 8px 0;
+  padding: 10px;
+}
+
+.control-center .notification-row .notification-background .notification:hover {
+  background: alpha(@card-hover, 0.98);
+  border-color: alpha(@accent, 0.45);
+}
+
+.control-center .notification-row .notification-background .notification.critical {
+  border-color: alpha(@urgent, 0.85);
+}
+
+.control-center .notification-row .notification-background .notification .notification-content {
+  margin: 4px;
+  padding: 4px;
+}
+
+.control-center .notification-row .notification-background .notification-action {
+  background: alpha(@card-hover, 0.8);
+  color: @text;
+  border-radius: 12px;
+  margin: 6px;
+  padding: 6px 10px;
+}
+
+.control-center .notification-row .notification-background .notification-action:hover {
+  background: @accent-soft;
+  color: @text;
+}
+
+
+/* Notification groups */
+.notification-group {
+  margin: 8px 4px;
+}
+
+.notification-group-headers {
+  font-weight: 700;
+  font-size: 15px;
+  color: @text;
+  letter-spacing: 0.4px;
+}
+
+.notification-group-icon {
+  color: @text-muted;
+}
+
+.notification-group-collapse-button,
+.notification-group-close-all-button {
+  background: transparent;
+  color: @text-muted;
+  border-radius: 10px;
+  margin: 4px;
+  padding: 4px 8px;
+}
+
+.notification-group-collapse-button:hover,
+.notification-group-close-all-button:hover {
+  background: @accent-soft;
+  color: @text;
+}
+
+/* Title */
+.widget-title {
+  margin: 4px 4px 12px 4px;
+  padding: 2px;
+}
+
+.widget-title > label {
+  font-size: 18px;
+  font-weight: 800;
+  color: @text;
+}
+
+.widget-title button {
+  background: alpha(@card, 0.9);
+  color: @text-muted;
+  border-radius: 12px;
+  padding: 6px 12px;
+  border: 1px solid alpha(@border, 0.6);
+}
+
+.widget-title button:hover {
+  background: @accent-soft;
+  color: @text;
+  border-color: alpha(@accent, 0.5);
+}
+
+/* DND */
+.widget-dnd {
+  background: alpha(@card, 0.85);
+  border: 1px solid alpha(@border, 0.65);
+  border-radius: 16px;
+  padding: 10px 12px;
+  margin: 8px 4px;
+}
+
+.widget-dnd > label {
+  color: @text;
+  font-weight: 600;
+}
+
+.widget-dnd > switch {
+  background: alpha(@card-hover, 0.9);
+  border-radius: 999px;
+  padding: 3px;
+  min-width: 42px;
+  min-height: 22px;
+}
+
+.widget-dnd > switch:checked {
+  background: alpha(@accent, 0.75);
+}
+
+.widget-dnd > switch slider {
+  background: @text;
+  border-radius: 999px;
+  min-width: 18px;
+  min-height: 18px;
+}
+
+/* Buttons grid */
+.widget-buttons-grid {
+  background: alpha(@card, 0.85);
+  border: 1px solid alpha(@border, 0.65);
+  border-radius: 18px;
+  padding: 10px;
+  margin: 10px 4px;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button {
+  background: alpha(@card-hover, 0.45);
+  color: @text;
+  border: 1px solid transparent;
+  border-radius: 16px;
+
+  margin: 5px;
+  padding: 10px;
+  
+  min-width: 52px;
+  min-height: 48px;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button label {
+  font-size: 26px;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button:hover {
+  background: @accent-soft;
+  border-color: alpha(@accent, 0.45);
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button.toggle:checked {
+  background: alpha(@accent, 0.35);
+  border-color: alpha(@accent, 0.65);
+}
+
+/* Volume */
+.widget-volume {
+  background: alpha(@card, 0.85);
+  border: 1px solid alpha(@border, 0.65);
+  border-radius: 16px;
+  padding: 10px 12px;
+  margin: 8px 4px 14px 4px;
+}
+
+.widget-volume label {
+  color: @text;
+  font-weight: 600;
+}
+
+progressbar,
+progress,
+trough {
+  border-radius: 999px;
+}
+
+trough {
+  background: alpha(@card-hover, 0.8);
+  min-height: 8px;
+}
+
+trough highlight,
+trough progress {
+  background: @accent;
+  border-radius: 999px;
+  min-height: 8px;
+}
+
+trough slider {
+  background: transparent;
+  min-height: 8px;
+  min-width: 8px;
+}
+
+/* Scrollbar */
+scrollbar {
+  background: transparent;
+}
+
+scrollbar slider {
+  background: alpha(@text-muted, 0.35);
+  border-radius: 999px;
+  min-width: 6px;
+}
+
+scrollbar slider:hover {
+  background: alpha(@text-muted, 0.55);
+}

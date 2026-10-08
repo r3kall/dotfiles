@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ff-bookmarks-export
+# Export the latest Firefox bookmark backup (bookmarkbackups/*.jsonlz4) and decompress to JSON.
+# If jq is available, the JSON is pretty-printed.
+#
+# Usage:
+#   ff-bookmarks-export --profile DIR [--outdir DIR] [--debug]
+#
+# Env:
+#   FF_PROFILE   Alternative to --profile
+#   FF_TOOLS_DIR      Default: ~/.config/ff-tools
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/ff-tools.sh"
+
+ff_need_cmd python
+
+FF_DEBUG="${FF_DEBUG:-0}"
+FF_TOOLS_DIR="${FF_TOOLS_DIR:-$HOME/.config/ff-tools}"
+OUTDIR="$FF_TOOLS_DIR/exports"
+PROFILE="${FF_PROFILE:-}"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  ff-bookmarks-export --profile DIR [--outdir DIR] [--debug]
+
+Options:
+  --profile DIR   Firefox profile directory
+  --outdir DIR    Output directory (default: ~/.config/ff-tools/exports)
+  --debug         Enable debug logs
+
+Output:
+  bookmarks_YYYY-mm-dd_HHMMSS.jsonlz4
+  bookmarks_YYYY-mm-dd_HHMMSS.json
+  bookmarks_YYYY-mm-dd_HHMMSS.sha256
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -p|--profile) PROFILE="${2:-}"; shift 2;;
+    -o|--outdir) OUTDIR="${2:-}"; shift 2;;
+    --debug) FF_DEBUG=1; shift;;
+    -h|--help) usage; exit 0;;
+    *) ff_die "unknown arg: $1";;
+  esac
+done
+
+[[ -n "$PROFILE" ]] || ff_die "PROFILE not set (use --profile or FF_PROFILE)"
+mkdir -p "$OUTDIR"
+
+latest="$(ls -1t "$PROFILE"/bookmarkbackups/*.jsonlz4 2>/dev/null | head -n1 || true)"
+[[ -n "$latest" ]] || ff_die "no bookmarkbackups/*.jsonlz4 found in: $PROFILE"
+
+ts="$(date +%Y-%m-%d_%H%M%S)"
+name="bookmarks_${ts}"
+dst_lz4="$OUTDIR/$name.jsonlz4"
+dst_json="$OUTDIR/$name.json"
+
+cp -a "$latest" "$dst_lz4"
+
+python - "$dst_lz4" "$dst_json" <<'PY'
+import sys
+from pathlib import Path
+
+try:
+    from lz4 import block
+except Exception as e:
+    raise SystemExit(
+        "Missing Python dependency 'lz4'. Install on Arch with:\n"
+        "  sudo pacman -S python-lz4\n"
+        f"Original error: {e}"
+    )
+
+src = Path(sys.argv[1])
+dst = Path(sys.argv[2])
+
+data = src.read_bytes()
+if not data.startswith(b"mozLz40\0"):
+    raise SystemExit("ERROR: not a mozLz4 file (missing mozLz40 header)")
+
+dst.write_bytes(block.decompress(data[8:]))
+PY
+
+if command -v jq >/dev/null 2>&1; then
+  tmp="$dst_json.tmp"
+  jq . "$dst_json" > "$tmp" && mv "$tmp" "$dst_json"
+fi
+
+sha256sum "$dst_lz4" "$dst_json" > "$OUTDIR/$name.sha256"
+
+echo "OK: bookmarks exported"
+echo "  $dst_json"
+echo "  $dst_lz4"

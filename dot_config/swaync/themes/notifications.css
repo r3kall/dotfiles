@@ -1,0 +1,107 @@
+@define-color text @on_surface;
+@define-color text-muted @on_surface_variant;
+@define-color base alpha(@surface, 0.94);
+@define-color card @surface_container;
+@define-color card-hover @surface_container_high;
+@define-color border @outline_variant;
+@define-color accent @primary;
+@define-color urgent @error;
+
+.floating-notifications {
+  background: transparent;
+}
+
+.notification-row {
+  outline: none;
+  margin: 0;
+  padding: 0;
+}
+
+.floating-notifications.background .notification-row .notification-background {
+  background: alpha(@card, 0.96);
+  border: 1px solid alpha(@border, 0.8);
+  border-radius: 18px;
+  margin: 8px;
+  padding: 0;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.42);
+}
+
+.floating-notifications.background .notification-row .notification-background:hover {
+  background: alpha(@card-hover, 0.98);
+  border-color: alpha(@accent, 0.45);
+}
+
+.floating-notifications.background .notification-row .notification-background .notification {
+  padding: 10px;
+}
+
+.floating-notifications.background .notification-row .notification-background .notification.critical {
+  border: 1px solid alpha(@urgent, 0.85);
+  border-radius: 18px;
+}
+
+.floating-notifications.background .notification-row .notification-background .notification .notification-content {
+  margin: 4px;
+}
+
+.image {
+  margin: 8px 14px 8px 0;
+  border-radius: 12px;
+}
+
+.summary {
+  color: @text;
+  font-weight: 750;
+  font-size: 14px;
+}
+
+.app-name {
+  color: @text-muted;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.body {
+  color: @text-muted;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.floating-notifications.background .notification-row .notification-background .notification-action {
+  background: alpha(@card-hover, 0.8);
+  color: @text;
+  border-radius: 12px;
+  margin: 5px;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+}
+
+.floating-notifications.background .notification-row .notification-background .notification-action:hover {
+  background: alpha(@accent, 0.22);
+  border-color: alpha(@accent, 0.45);
+}
+
+.notification.critical progress {
+  background-color: @urgent;
+}
+
+.notification.low progress,
+.notification.normal progress {
+  background-color: @accent;
+}
+
+/* Volume/progress notifications */
+.notification-row .notification-background .notification .notification-default-action .notification-content progressbar,
+.notification-row .notification-background .notification .notification-default-action .notification-content progressbar trough,
+.notification-row .notification-background .notification .notification-default-action .notification-content progressbar trough progress {
+  min-height: 6px;
+  border-radius: 999px;
+}
+
+.notification-row .notification-background .notification .notification-default-action .notification-content progressbar trough {
+  background-color: alpha(@card-hover, 0.8);
+}
+
+.notification-row .notification-background .notification .notification-default-action .notification-content progressbar trough progress {
+  background-color: @accent;
+}

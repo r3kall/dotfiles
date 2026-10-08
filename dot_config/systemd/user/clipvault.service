@@ -1,0 +1,13 @@
+[Unit]
+Description=Clipvault watcher 
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/wl-paste --type text --watch /usr/bin/clipvault store
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=default.target

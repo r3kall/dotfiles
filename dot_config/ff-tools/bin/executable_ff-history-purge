@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ff-history-cleanup
+# Purge Firefox history for URLs containing any pattern from a pattern file.
+#
+# Usage:
+#   ff-history-cleanup --profile DIR [--pattern-file FILE] [--debug]
+#
+# Env:
+#   FF_PROFILE        Alternative to --profile
+#   FF_TOOLS_DIR      Default: ~/.config/ff-tools
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/ff-tools.sh"
+
+ff_need_cmd sqlite3
+ff_need_cmd python
+
+FF_DEBUG="${FF_DEBUG:-0}"
+FF_TOOLS_DIR="${FF_TOOLS_DIR:-$HOME/.config/ff-tools}"
+PATTERN_FILE="$FF_TOOLS_DIR/patterns.txt"
+PROFILE="${FF_PROFILE:-}"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  ff-history-cleanup --profile DIR [--pattern-file FILE] [--debug]
+
+Options:
+  --profile DIR        Firefox profile directory
+  --pattern-file F     Optional patterns file
+  --debug              Enable debug logs
+
+Patterns file:
+  One pattern per line. Blank lines and lines starting with # are ignored.
+  Each pattern is treated as a literal substring, matched against moz_places.url.
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -p|--profile) PROFILE="${2:-}"; shift 2;;
+    -s|--pattern-file) PATTERN_FILE="${2:-}"; shift 2;;
+    --debug) FF_DEBUG=1; shift;;
+    -h|--help) usage; exit 0;;
+    *) ff_die "unknown arg: $1";;
+  esac
+done
+
+[[ -n "$PROFILE" ]] || ff_die "PROFILE not set (use --profile or FF_PROFILE)"
+
+DB="$PROFILE/places.sqlite"
+[[ -f "$DB" ]] || ff_die "places.sqlite not found: $DB"
+
+ff_assert_firefox_not_running
+
+
+ff_file_has_noncomment_lines "$PATTERN_FILE" || exit 1
+
+sql_inserts=""
+while IFS= read -r line; do
+  line="${line%%#*}"
+  line="$(printf '%s' "$line" | ff_trim)"
+  [[ -z "$line" ]] && continue
+
+  esc="$(printf "%s" "$line"       | sed -e 's/\\/\\\\/g' -e 's/%/\\%/g' -e 's/_/\\_/g' -e "s/'/''/g")"
+  sql_inserts+="INSERT INTO pattern_url_like(pattern) VALUES('%${esc}%');"$'\n'
+done < "$PATTERN_FILE"
+
+
+sqlite3 "$DB" <<SQL
+PRAGMA foreign_keys=ON;
+BEGIN IMMEDIATE;
+
+DROP TABLE IF EXISTS pattern_url_like;
+CREATE TEMP TABLE pattern_url_like(pattern TEXT);
+$sql_inserts
+
+DELETE FROM moz_historyvisits
+WHERE place_id IN (
+  SELECT p.id
+  FROM moz_places p
+  WHERE EXISTS (
+    SELECT 1 FROM pattern_url_like s
+    WHERE p.url LIKE s.pattern ESCAPE '\'
+  )
+);
+
+DELETE FROM moz_places
+WHERE id IN (
+  SELECT p.id
+  FROM moz_places p
+  LEFT JOIN moz_historyvisits v ON v.place_id = p.id
+  LEFT JOIN moz_bookmarks b ON b.fk = p.id
+  WHERE v.id IS NULL AND b.id IS NULL
+);
+
+DELETE FROM moz_inputhistory
+WHERE place_id NOT IN (SELECT id FROM moz_places);
+
+COMMIT;
+VACUUM;
+SQL
+
+echo "OK: history cleaned"
+echo "  profile: $PROFILE"
+echo "  sensitive: $PATTERN_FILE"
