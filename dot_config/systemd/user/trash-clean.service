@@ -1,0 +1,6 @@
+[Unit]
+Description=Delete home Trash items older than 20 days
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/trash-empty -f --trash-dir=%h/.local/share/Trash 20

@@ -1,0 +1,25 @@
+#:schema https://yazi-rs.github.io/schemas/yazi.json
+# Keep only local overrides; inherit defaults from the installed Yazi version.
+
+[mgr]
+mouse_events = [ "click", "scroll" ]
+
+[tasks]
+image_bound = [ 5000, 5000 ]
+
+[opener]
+play = [
+  { run = 'mpv --force-window %s', orphan = true, for = "unix" },
+  { run = 'mpv --force-window %s', orphan = true, for = "windows" },
+  { run = "mediainfo %s1; echo 'Press enter to exit'; read _", block = true, desc = "Show media info", for = "unix" },
+]
+set-wallpaper = [
+  { run = 'awww img %s1', for = "linux", desc = "Set as wallpaper" },
+]
+
+[[open.prepend_rules]]
+mime = "image/*"
+use = [ "open", "set-wallpaper" ]
+
+[confirm]
+quit_body = "The following tasks are still running, are you sure you want to quit?"

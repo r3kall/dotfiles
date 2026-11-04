@@ -14,7 +14,7 @@ rofi_cmd() {
   rofi -dmenu \
     -p "Goodbye ${USER}" \
     -mesg "Uptime: $UPTIME" \
-    -theme $THEME
+    -theme "$THEME"
 }
 
 run_rofi() {
@@ -30,10 +30,15 @@ run_cmd() {
   elif [[ $1 == '--suspend' ]]; then
     systemctl suspend
   elif [[ $1 == '--logout' ]]; then
-    if uwsm check is-active; then
-      uswm stop
+    if command -v uwsm >/dev/null 2>&1 && uwsm check is-active; then
+      uwsm stop
     else
-      loginctl terminate-session
+      local session_id="${XDG_SESSION_ID:-}"
+      if [[ -z "$session_id" ]]; then
+        session_id="$(loginctl show-session auto --property=Id --value)" || return 1
+      fi
+      [[ -n "$session_id" ]] || return 1
+      loginctl terminate-session "$session_id"
     fi
   elif [[ $1 == '--lock' ]]; then
     loginctl lock-session

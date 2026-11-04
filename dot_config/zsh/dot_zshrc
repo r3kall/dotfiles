@@ -196,10 +196,24 @@ if command -v "kubie" >/dev/null; then
 fi
 
 [ -f "$XDG_CONFIG_HOME/shell/alias" ] && source "$XDG_CONFIG_HOME/shell/alias"
-[ -f "$XDG_CONFIG_HOME/vivid/themes/matugen.yml" ] && export LS_COLORS="$(vivid generate $XDG_CONFIG_HOME/vivid/themes/matugen.yml)"
+_refresh_matugen_colors() {
+  local palette="$XDG_CONFIG_HOME/vivid/themes/matugen.yml"
+  local -A palette_stat
+  command -v vivid >/dev/null 2>&1 || return 0
+  zmodload zsh/stat
+  zstat -H palette_stat -- "$palette" 2>/dev/null || return 0
+  [[ "${_matugen_colors_mtime:-}" == "${palette_stat[mtime]}" ]] && return 0
+  local colors
+  colors="$(vivid generate "$palette")" || return
+  export LS_COLORS="$colors"
+  _matugen_colors_mtime="${palette_stat[mtime]}"
+}
+_refresh_matugen_colors
+add-zsh-hook precmd _refresh_matugen_colors
 
 TRAPUSR2() {
-  [ -f "$XDG_CONFIG_HOME/vivid/themes/matugen.yml" ] && export LS_COLORS="$(vivid generate $XDG_CONFIG_HOME/vivid/themes/matugen.yml)"
+  _matugen_colors_mtime=
+  _refresh_matugen_colors
   zle && zle reset-prompt
 }
 

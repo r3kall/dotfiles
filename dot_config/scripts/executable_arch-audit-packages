@@ -8,13 +8,17 @@ need() { command -v "$1" >/dev/null 2>&1 || die "Missing dependency: $1"; }
 urlencode() { jq -nr --arg v "$1" '$v|@uri'; }
 
 need pacman
-need curl
-need jq
-need git
+
+umask 077
 
 CACHE_DIR="${CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/aur-security-audit}"
 PKGBUILD_DIR="$CACHE_DIR/pkgbuilds"
 mkdir -p "$PKGBUILD_DIR"
+
+REPORT_ROOT="${AUDIT_REPORT_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/arch-audit-packages}"
+mkdir -p "$REPORT_ROOT"
+REPORT_DIR="$(mktemp -d "$REPORT_ROOT/$(date +%Y%m%d-%H%M%S).XXXXXX")"
+printf 'Audit reports: %s\n' "$REPORT_DIR"
 
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
@@ -23,14 +27,34 @@ FOREIGN_FILE="$TMP_DIR/foreign.txt"
 AUR_TSV="$TMP_DIR/aur.tsv"
 AUR_NAMES="$TMP_DIR/aur-names.txt"
 NON_AUR_FILE="$TMP_DIR/non-aur.txt"
-ARCH_AUDIT_TSV="$TMP_DIR/arch-audit.tsv"
-ARCH_AUDIT_MATCHES="$TMP_DIR/arch-audit-matches.tsv"
-OSV_SUMMARY="$TMP_DIR/osv-summary.txt"
-RISK_FINDINGS="$TMP_DIR/risk-findings.txt"
+ARCH_AUDIT_TSV="$REPORT_DIR/arch-audit.tsv"
+OSV_SUMMARY="$REPORT_DIR/osv-summary.txt"
+RISK_FINDINGS="$REPORT_DIR/risk-findings.txt"
 
 : >"$AUR_TSV"
 : >"$OSV_SUMMARY"
 : >"$RISK_FINDINGS"
+
+section "arch-audit CVE check (all installed packages covered by the Arch tracker)"
+if command -v arch-audit >/dev/null 2>&1; then
+    set +e
+    arch-audit -f $'%n\t%s\t%c\t%v' >"$ARCH_AUDIT_TSV" 2>"$REPORT_DIR/arch-audit.errors"
+    rc=$?
+    set -e
+
+    if [[ -s "$ARCH_AUDIT_TSV" ]]; then
+        printf 'Package\tSeverity\tCVEs\tFixed version\n'
+        cat "$ARCH_AUDIT_TSV"
+    elif [[ "$rc" -eq 0 ]]; then
+        printf 'No vulnerabilities reported by the Arch security tracker.\n'
+    fi
+    if [[ "$rc" -ne 0 && ! -s "$ARCH_AUDIT_TSV" ]]; then
+        warn "arch-audit failed with exit code $rc; review $REPORT_DIR/arch-audit.errors"
+        cat "$REPORT_DIR/arch-audit.errors" >&2
+    fi
+else
+    warn "arch-audit is not installed. Skipping Arch security tracker checks."
+fi
 
 section "Installed foreign packages"
 pacman -Qqm | sort -u >"$FOREIGN_FILE" || true
@@ -39,6 +63,10 @@ if [[ ! -s "$FOREIGN_FILE" ]]; then
     exit 0
 fi
 cat "$FOREIGN_FILE"
+
+need curl
+need jq
+need git
 
 section "AUR metadata"
 mapfile -t FOREIGN <"$FOREIGN_FILE"
@@ -100,33 +128,6 @@ while IFS=$'\t' read -r name base aur_version out_of_date maintainer upstream_ur
     printf 'Fetched: %s\n' "$base"
 done <"$AUR_TSV"
 
-section "arch-audit CVE check"
-if command -v arch-audit >/dev/null 2>&1; then
-    set +e
-    arch-audit -f '%n\t%s\t%c\t%v' >"$ARCH_AUDIT_TSV"
-    rc=$?
-    set -e
-
-    if [[ "$rc" -ne 0 && ! -s "$ARCH_AUDIT_TSV" ]]; then
-        warn "arch-audit failed with exit code $rc."
-    else
-        awk 'NR==FNR {aur[$1]=1; next} ($1 in aur)' \
-            "$AUR_NAMES" "$ARCH_AUDIT_TSV" >"$ARCH_AUDIT_MATCHES"
-
-        if [[ -s "$ARCH_AUDIT_MATCHES" ]]; then
-            printf 'Potential CVE matches for installed AUR package names:\n'
-            while IFS=$'\t' read -r pkg severity cves fixed_version; do
-                printf -- '- %s | severity=%s | cves=%s | fixed=%s\n' \
-                    "$pkg" "${severity:-unknown}" "${cves:-unknown}" "${fixed_version:-unknown}"
-            done <"$ARCH_AUDIT_MATCHES"
-        else
-            printf 'No arch-audit matches for installed AUR package names.\n'
-        fi
-    fi
-else
-    warn "arch-audit is not installed. Skipping Arch security tracker matching."
-fi
-
 section "OSV scan of AUR packaging repositories"
 if command -v osv-scanner >/dev/null 2>&1; then
     scanned=0
@@ -141,7 +142,7 @@ if command -v osv-scanner >/dev/null 2>&1; then
         dest="$PKGBUILD_DIR/$base"
         [[ -d "$dest" ]] || continue
 
-        out="$TMP_DIR/osv-$base.txt"
+        out="$REPORT_DIR/osv-$base.txt"
 
         set +e
         if osv-scanner scan source -r "$dest" >"$out" 2>&1; then
@@ -184,3 +185,4 @@ fi
 section "Notes"
 printf 'AUR vulnerability checks are best-effort only. Review PKGBUILD files and upstream project advisories for important packages.\n'
 printf 'Cached PKGBUILD repositories: %s\n' "$PKGBUILD_DIR"
+printf '\nRetained audit reports: %s\n' "$REPORT_DIR"

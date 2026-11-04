@@ -1,0 +1,15 @@
+#:schema https://yazi-rs.github.io/schemas/keymap.json
+# Preserve local key behavior while inheriting current default bindings.
+
+[mgr]
+prepend_keymap = [
+  { on = "<Space>", run = [ "toggle", "arrow next" ], desc = "Toggle the current selection state" },
+  { on = "t", run = "tab_create --current", desc = "Create a new tab with CWD" },
+]
+
+[input]
+prepend_keymap = [
+  { on = "<A-b>", run = "backward", desc = "Move back to the start of the current or previous word" },
+  { on = "<A-f>", run = "forward --end-of-word", desc = "Move forward to the end of the current or next word" },
+  { on = "u", run = "undo", desc = "Undo the last operation" },
+]

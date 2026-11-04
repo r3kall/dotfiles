@@ -16,7 +16,8 @@
 	],
 	/*----------Modules Center--------------*/
 	"modules-center": [
-		"hyprland/workspaces",
+		// "hyprland/workspaces",
+		"ext/workspaces",
 		"custom/swaync"
 	],
 	/*----------Modules Center--------------*/
@@ -31,11 +32,19 @@
 	],
 
 	/*----------Hyprland Workspace----------*/
-	"hyprland/workspaces": {
+	// Previous module: Waybar 0.15.0 sends legacy IPC for workspace clicks.
+	// "hyprland/workspaces": {
+	// 	"format": "{name}",
+	// 	"on-click": "activate",
+	// 	"on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'",
+	// 	"on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'"
+	// },
+	"ext/workspaces": {
 		"format": "{name}",
 		"on-click": "activate",
-		"on-scroll-down": "hyprctl dispatch workspace e+1",
-		"on-scroll-up": "hyprctl dispatch workspace e-1"
+		"sort-by-id": true,
+		"on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'",
+		"on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'"
 	},
 
 	/*-----------SwayNC----------------*/

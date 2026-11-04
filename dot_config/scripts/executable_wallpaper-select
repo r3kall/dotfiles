@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Script for selecting wallpapers with rofi + awww
 
-source utils.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/utils.sh"
 
 # Variables
-LOG="$HOME/.config/scripts/logs/$(basename $0).log"
+LOG="$HOME/.config/scripts/logs/$(basename -- "$0").log"
 WALLPAPER_DIR="${HOME}/Pictures/wallpapers"
 WALLPAPER_CURR="$HOME/.config/hypr/.current_wallpaper"
 ROFI_THEME="${HOME}/.config/rofi/themes/wallpaper-select.rasi"
@@ -39,34 +39,35 @@ iconSize=$(echo "scale=1; ($monitorHeight * 3) / ($scaleFactor * 100)" | bc)
 adjustedIconSize=$(echo "$iconSize" | awk '{if ($1 < 20) $1 = 20; if ($1 > 40) $1 = 40; print $1}')
 ROFI_OVERRIDE="element-icon{size:${adjustedIconSize}%;}"
 
-mapfile -t PICS < <(
+mapfile -d '' -t PICS < <(
   find -L "${WALLPAPER_DIR}" \
-    -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' \) \
+    -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.webp' -o -iname '*.bmp' -o -iname '*.tiff' \) \
     -print0 |
-    xargs -0 -n1 printf '%s\n' |
-    sort
+    sort -z
 )
+((${#PICS[@]})) || { notify_err_alt "No wallpapers found in $WALLPAPER_DIR"; exit 1; }
 
 # Use date variable to increase randomness
 randomNumber=$((($(date +%s) + RANDOM + $$)))
 randomPicture="${PICS[$((randomNumber % ${#PICS[@]}))]}"
 randomChoice="[${#PICS[@]}] Random"
 
-rofiCommand="rofi -i -show -dmenu -config $ROFI_THEME -theme-str $ROFI_OVERRIDE"
+rofiCommand=(rofi -i -dmenu -format i -config "$ROFI_THEME" -theme-str "$ROFI_OVERRIDE")
 
 menu() {
-  IFS=$'\n' sorted_options=($(sort <<<"${PICS[*]}"))
-
   # Random entry first
   printf "%s\x00icon\x1f%s\n" "$randomChoice" "$randomPicture"
 
-  for picPath in "${sorted_options[@]}"; do
+  for picPath in "${PICS[@]}"; do
     picName=$(basename "$picPath")
-    if [[ "$picName" =~ \.gif$ ]]; then
-      cacheGifImage="$HOME/.cache/gif_preview/${picName}.png"
-      if [[ ! -f "cache_gif_image" ]]; then
-        mkdir -p "$HOME/.cache/git_preview"
-        magic "picPath[0]" -resize 1920x1080 "$cacheGifImage"
+    if [[ "${picName,,}" == *.gif ]]; then
+      cacheKey=$(printf '%s' "$picPath" | sha256sum)
+      cacheGifImage="${XDG_CACHE_HOME:-$HOME/.cache}/gif_preview/${cacheKey%% *}.png"
+      if [[ ! -f "$cacheGifImage" || "$picPath" -nt "$cacheGifImage" ]]; then
+        mkdir -p "$(dirname -- "$cacheGifImage")"
+        if ! magick "${picPath}[0]" -thumbnail '1920x1080>' "$cacheGifImage"; then
+          cacheGifImage="$picPath"
+        fi
       fi
       printf "%s\x00icon\x1f%s\n" "$picName" "$cacheGifImage"
     else
@@ -76,41 +77,36 @@ menu() {
 }
 
 reload() {
-  killall -USR2 zsh
-  sleep 0.5
-  pkill -SIGUSR2 waybar
-  sleep 0.5
-  pkill -SIGUSR2 ghostty
+  pkill -SIGUSR2 -u "$UID" -x waybar || true
+  pkill -SIGUSR2 -u "$UID" -x ghostty || true
 }
 
 applyImageWallpaper() {
   local img="$1"
   awww img -o "$FOCUSED_MONITOR" "${img}" "${AWWW_PARAMS[@]}"
   # Track current wallpaper
-  ln -sf $img $WALLPAPER_CURR
+  ln -sfn -- "$img" "$WALLPAPER_CURR"
   # Animation timer
-  sleep $(echo $DURATION + "0.25" | bc)
-  matugen -v image "$img"
+  sleep "$(echo "$DURATION + 0.25" | bc)"
+  matugen -v --source-color-index 0 image "$img"
   reload
 }
 
 main() {
-  choice=$(menu | $rofiCommand) || true
-  choice=$(echo "$choice" | xargs)
-  randomChoice=$(echo "$randomChoice" | xargs)
+  choice=$(menu | "${rofiCommand[@]}") || return 0
 
   # User cancelled
   [[ -z "${choice}" ]] && exit 0
+  [[ "$choice" =~ ^[0-9]+$ ]] && ((choice <= ${#PICS[@]})) || return 1
 
   # Random selection
-  if [[ "${choice}" == "${randomChoice}" ]]; then
+  if ((choice == 0)); then
     applyImageWallpaper "${randomPicture}"
     exit 0
   fi
 
-  # Search for the selected file in the wallpapers directory, including subdirectories
-  choiceBasename=$(basename "$choice" | sed 's/\(.*\)\.[^.]*$/\1/')
-  selectedFile=$(find "$WALLPAPER_DIR" -iname "$choiceBasename.*" -print -quit)
+  # Resolve the selected index to its full path, including subdirectories and spaces.
+  selectedFile="${PICS[choice - 1]}"
 
   if [[ -n "${selectedFile}" ]]; then
     applyImageWallpaper "${selectedFile}"

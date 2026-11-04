@@ -100,5 +100,6 @@ addr=$(printf '%s\n' "$selected_line" | cut -f1)
 
 # Focus the chosen window
 if [[ -n "$addr" ]]; then
-  hyprctl dispatch focuswindow "address:$addr" >/dev/null 2>&1
+  [[ "$addr" =~ ^0x[0-9a-fA-F]+$ ]] || exit 1
+  hyprctl dispatch "hl.dsp.focus({ window = \"address:$addr\" })" >/dev/null 2>&1
 fi

@@ -20,6 +20,11 @@ output_path = "~/.config/vivid/themes/matugen.yml"
 input_path = '~/.config/matugen/templates/hyprland.conf'
 output_path = '~/.config/hypr/colors.conf'
 
+# Hyprland Lua palette; keep the legacy palette above for Hyprlock.
+[templates.hyprland_lua]
+input_path = '~/.config/matugen/templates/hyprland.lua'
+output_path = '~/.config/hypr/colors.lua'
+
 # GTK3
 [templates.gtk3]
 input_path = '~/.config/matugen/templates/gtk.css'

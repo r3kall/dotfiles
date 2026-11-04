@@ -3,7 +3,10 @@
 # Close all open windows
 hyprctl clients -j | \
   jq -r ".[].address" | \
-  xargs -I{} hyprctl dispatch closewindow address:{}
+  while IFS= read -r address; do
+    [[ "$address" =~ ^0x[0-9a-fA-F]+$ ]] || continue
+    hyprctl dispatch "hl.dsp.window.close({ window = \"address:$address\" })"
+  done
 
 # Move to first workspace
-hyprctl dispatch workspace 1
+hyprctl dispatch 'hl.dsp.focus({ workspace = "1" })'
