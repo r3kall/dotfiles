@@ -1,8 +1,11 @@
 [Unit]
 Description=Add SSH keys
+Requires=ssh-agent.service
+After=ssh-agent.service
 
 [Service]
 Type=oneshot
+Environment=SSH_AUTH_SOCK=%t/ssh-agent.socket
 ExecStart=/usr/bin/ssh-add /home/arch/.ssh/github /home/arch/.ssh/github-brightstar
 
 [Install]

@@ -1,0 +1,14 @@
+[Unit]
+Description=Set speaker and microphone volumes to zero at login
+Wants=wireplumber.service
+After=graphical-session.target wireplumber.service
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash %h/.config/scripts/audio-startup-zero
+RemainAfterExit=yes
+TimeoutStartSec=45
+
+[Install]
+WantedBy=graphical-session.target

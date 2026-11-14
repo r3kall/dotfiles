@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -eu
+
+# WirePlumber publishes default devices asynchronously after starting.
+zero_volume() {
+    local target="$1"
+    for ((attempt = 0; attempt < 100; attempt++)); do
+        if wpctl set-volume "$target" 0 >/dev/null 2>&1; then
+            return 0
+        fi
+        sleep 0.2
+    done
+    printf 'Could not reset volume for %s\n' "$target" >&2
+    return 1
+}
+
+zero_volume @DEFAULT_AUDIO_SINK@
+zero_volume @DEFAULT_AUDIO_SOURCE@
